@@ -1,0 +1,74 @@
+<html
+        xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+        xmlns:md="http://typo3.org/ns/Mediadreams/MdCalendarizeFrontend/ViewHelpers"
+        data-namespace-typo3-fluid="true">
+
+<f:for each="{event.calendarize}" as="item" iteration="i">
+    <fieldset class="border p-3 mb-3" id="dateSet{i.cycle}">
+        <legend>Date</legend>
+
+        <div class="row">
+            <div class="form-group col-md-8 col">
+                <label for="start"><f:translate key="event.calendarize.startDate" /></label>
+                <f:form.textfield
+                        property="calendarize.{i.index}.startDate"
+                        value="{item.startDate -> f:format.date(format: '{settings.dateFormat}')}"
+                        id="start"
+                        class="form-control"
+                        additionalAttributes="{placeholder:'{settings.dateFormatPlaceholder}', data-parsley-trigger:'change focusout', required:''}" />
+            </div>
+
+            <div class="form-group col-md-4">
+                <label for="startTime"><f:translate key="event.calendarize.startTime" /></label>
+                <f:form.textfield
+                        property="calendarize.{i.index}.startTime"
+                        value="{f:if(condition:'{item.startTime}',then:'{item.startTime -> md:utcTime(format: \'{settings.timeFormat}\')}',else:'')}"
+                        id="startTime"
+                        class="form-control"
+                        additionalAttributes="{placeholder:'{settings.timeFormatPlaceholder}'}" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-md-8 col">
+                <label for="end"><f:translate key="event.calendarize.endDate" /></label>
+                <f:form.textfield
+                        property="calendarize.{i.index}.endDate"
+                        value="{item.endDate -> f:format.date(format: '{settings.dateFormat}')}"
+                        id="end"
+                        class="form-control"
+                        additionalAttributes="{placeholder:'{settings.dateFormatPlaceholder}'}" />
+
+            </div>
+
+            <div class="form-group col-md-4">
+                <label for="endTime"><f:translate key="event.calendarize.endTime" /></label>
+                <f:form.textfield
+                        property="calendarize.{i.index}.endTime"
+                        value="{f:if(condition:'{item.endTime} > 0',then:'{item.endTime -> md:utcTime(format: \'{settings.timeFormat}\')}',else:'')}"
+                        id="endTime"
+                        class="form-control"
+                        additionalAttributes="{placeholder:'{settings.timeFormatPlaceholder}'}" />
+            </div>
+        </div>
+
+        <f:form.hidden
+                property="calendarize.{i.index}.type"
+                value="time" />
+
+        <f:form.hidden
+                property="calendarize.{i.index}.handling"
+                value="include" />
+
+        <f:form.hidden
+                property="calendarize.{i.index}.state"
+                value="default" />
+
+        <f:comment>optionally change this, if frequency is month or year</f:comment>
+        <f:form.hidden
+                property="calendarize.{i.index}.day"
+                value="weekday" />
+    </fieldset>
+</f:for>
+
+</html>

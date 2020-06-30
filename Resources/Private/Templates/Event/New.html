@@ -1,0 +1,21 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:layout name="Default" />
+
+<f:section name="content">
+    <h1><f:translate key="new_event" /></h1>
+
+    <f:flashMessages />
+
+    <f:render partial="FormErrors" />
+
+    <f:form action="create"  name="event" object="{event}" enctype="multipart/form-data" additionalAttributes="{data-parsley-validate:''}">
+        <f:comment>Add empty calendarize object in order to show first item for calendar entries</f:comment>
+        <f:alias map="{event: '{calendarize:\'{0:empty}\'}'}">
+            <f:render partial="Event/FormFields" arguments="{_all}" />
+        </f:alias>
+
+        <f:form.submit value="{f:translate(key: 'save')}" class="btn btn-primary" />
+        <f:translate key="or" /> <f:link.action action="list"><f:translate key="back_to_list" /></f:link.action>
+    </f:form>
+</f:section>
+</html>

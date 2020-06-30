@@ -1,0 +1,85 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+
+    <div class="form-group">
+        <label for="title"><f:translate key="event.title" /></label>
+        <f:form.textfield
+                property="title"
+                id="title"
+                class="form-control"
+                additionalAttributes="{data-parsley-trigger:'change focusout', required:''}" />
+    </div>
+
+    <div class="form-group">
+        <label for="abstract"><f:translate key="event.abstract" /></label>
+        <f:form.textarea
+                property="abstract"
+                id="abstract"
+                class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="description"><f:translate key="event.description" /></label>
+        <f:form.textarea
+                property="description"
+                id="description"
+                class="form-control" />
+    </div>
+
+    <div class="row">
+        <div class="form-group col-md-6 col">
+            <label for="location"><f:translate key="event.location" /></label>
+            <f:form.textfield
+                    property="location"
+                    id="location"
+                    class="form-control" />
+
+        </div>
+
+        <div class="form-group col-md-6">
+            <label for="locationLink"><f:translate key="event.locationLink" /></label>
+            <f:form.textfield
+                    property="locationLink"
+                    id="locationLink"
+                    class="form-control"
+                    additionalAttributes="{data-parsley-type:'url'}" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group col-md-6 col">
+            <label for="organizer"><f:translate key="event.organizer" /></label>
+            <f:form.textfield
+                    property="organizer"
+                    id="organizer"
+                    class="form-control" />
+
+        </div>
+
+        <div class="form-group col-md-6">
+            <label for="organizerLink"><f:translate key="event.organizerLink" /></label>
+            <f:form.textfield
+                    property="organizerLink"
+                    id="organizerLink"
+                    class="form-control"
+                    additionalAttributes="{data-parsley-type:'url'}" />
+        </div>
+    </div>
+
+    <f:if condition="categories">
+        <div class="form-group">
+            <label for="categories"><f:translate key="event.categories" /></label>
+            <f:form.select
+                    property="categories"
+                    options="{categories}"
+                    optionValueField="uid"
+                    optionLabelField="title"
+                    id="categories"
+                    class="form-control"
+                    multiple="multiple"
+                    size="3" />
+        </div>
+    </f:if>
+
+    <f:render partial="Event/FormFieldsDate" arguments="{_all}" />
+
+</html>

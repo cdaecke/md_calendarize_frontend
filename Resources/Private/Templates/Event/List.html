@@ -1,0 +1,66 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:layout name="Default" />
+
+<f:section name="content">
+    <h1><f:translate key="list_events" /></h1>
+
+    <f:flashMessages />
+
+    <f:if condition="{events}">
+        <f:then>
+            <f:widget.paginate objects="{events}" as="paginatedEvents" configuration="{itemsPerPage: 10}">
+                <div class="row my-3">
+                    <f:for each="{paginatedEvents}" as="eventItem" iteration="i">
+                        <div class="col-sm-8 {f:if(condition:'{i.isEven}',then:'even',else:'odd')}">
+                            {eventItem.title}
+                        </div>
+                        <div class="col-sm-4 text-right {f:if(condition:'{i.isEven}',then:'even',else:'odd')}">
+                            <f:link.action action="edit" arguments="{event : eventItem}" class="mr-3" title="{f:translate(key: 'edit')}: {eventItem.title}"><i class="fas fa-pencil-alt"></i> <f:translate key="edit" /></f:link.action>
+                            <f:link.action action="delete" arguments="{event : eventItem}" class="text-danger delete" additionalAttributes="{data-toggle: 'modal', data-target: '#deleteModal'}" title="{f:translate(key: 'delete')}: {eventItem.title}"><i class="fas fa-trash-alt"></i> <f:translate key="delete" /></f:link.action>
+                        </div>
+                    </f:for>
+                </div>
+            </f:widget.paginate>
+        </f:then>
+        <f:else>
+            <div class="no-items">
+                <f:translate key="no_items" />
+            </div>
+        </f:else>
+    </f:if>
+
+    <f:link.action action="new" class="btn btn-primary"><f:translate key="new" /></f:link.action>
+
+    <!-- Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel"><f:translate key="modal.title" /></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <f:translate key="modal.text" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal"><f:translate key="modal.close" /></button>
+                    <a href="#" class="btn btn-danger" id="delLink"><f:translate key="modal.delete" /></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        (function($){
+            $(document).ready(function() {
+                $('.delete').on('click', function() {
+                    $('#delLink').attr('href', $(this).attr('href'));
+                });
+            });
+        })(jQuery);
+    </script>
+
+</f:section>
+</html>
