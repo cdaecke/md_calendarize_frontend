@@ -1,131 +1,171 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <xliff version="1.0">
-    <file source-language="en" datatype="plaintext" original="messages" date="2020-06-17T12:08:09Z" product-name="md_calendarize_frontend">
+    <file source-language="en" target-language="de" datatype="plaintext" original="messages" date="2020-07-01T11:32:19Z" product-name="md_calendarize_frontend">
         <header/>
         <body>
             <trans-unit id="tx_mdcalendarizefrontend_domain_model_event">
                 <source>Event</source>
+                <target>Event</target>
             </trans-unit>
             <trans-unit id="tx_mdcalendarizefrontend_domain_model_event.md_user">
                 <source>Frontend user</source>
+                <target>Frontend user</target>
             </trans-unit>
             <trans-unit id="tca.tab">
                 <source>User</source>
+                <target>User</target>
             </trans-unit>
 
             <trans-unit id="list_events">
                 <source>Your calendar entries</source>
+                <target>Kalendereinträge</target>
             </trans-unit>
             <trans-unit id="no_items">
                 <source>There are currently no calendar entries.</source>
+                <target>Zur Zeit sind keine Kalendereinträge vorhanden.</target>
             </trans-unit>
             <trans-unit id="new">
                 <source>Create new</source>
+                <target>Neuer Eintrag</target>
             </trans-unit>
             <trans-unit id="edit">
                 <source>Edit</source>
+                <target>Bearbeiten</target>
             </trans-unit>
             <trans-unit id="delete">
                 <source>Delete</source>
+                <target>Löschen</target>
             </trans-unit>
 
             <trans-unit id="new_event">
                 <source>New event</source>
+                <target>Neuer Eintrag</target>
             </trans-unit>
             <trans-unit id="edit_event">
                 <source>Edit event</source>
+                <target>Eintrag bearbeiten</target>
             </trans-unit>
 
             <trans-unit id="modal.title">
                 <source>Delete entry</source>
+                <target>Eintrag löschen</target>
             </trans-unit>
             <trans-unit id="modal.close">
                 <source>Close</source>
+                <target>Schließen</target>
             </trans-unit>
             <trans-unit id="modal.delete">
                 <source>Delete</source>
+                <target>Löschen</target>
             </trans-unit>
             <trans-unit id="modal.text">
                 <source>Do you realy want to delete this calendar entry?</source>
+                <target>Soll der Kalendereintrag wirklich gelöscht werden?</target>
             </trans-unit>
 
             <trans-unit id="save">
                 <source>Save</source>
+                <target>Speichern</target>
             </trans-unit>
             <trans-unit id="or">
                 <source>or</source>
+                <target>oder</target>
             </trans-unit>
             <trans-unit id="back_to_list">
                 <source>Back to list</source>
+                <target>Zurück zur Liste</target>
             </trans-unit>
 
             <trans-unit id="event.title">
                 <source>Title*</source>
+                <target>Titel*</target>
             </trans-unit>
             <trans-unit id="event.abstract">
                 <source>Abstract</source>
+                <target>Abstrakt</target>
             </trans-unit>
             <trans-unit id="event.description">
                 <source>Description</source>
+                <target>Beschreibung</target>
             </trans-unit>
             <trans-unit id="event.location">
                 <source>Location</source>
+                <target>Ort</target>
             </trans-unit>
             <trans-unit id="event.locationLink">
                 <source>Location link</source>
+                <target>URL Ort</target>
             </trans-unit>
             <trans-unit id="event.organizer">
                 <source>Organizer</source>
+                <target>Organisator</target>
             </trans-unit>
             <trans-unit id="event.organizerLink">
                 <source>Organizer link</source>
+                <target>URL Organisator</target>
             </trans-unit>
             <trans-unit id="event.categories">
                 <source>Categories</source>
+                <target>Kategorien</target>
             </trans-unit>
             <trans-unit id="event.categoriesHelp">
                 <source>Select more categories with pressed ctrl-key.</source>
+                <target>Mehrere Kategorien können mit gedrückter CTRL-Taste ausgewählt werden.</target>
             </trans-unit>
             <trans-unit id="event.calendarize.legend">
                 <source>Date</source>
+                <target>Datum</target>
             </trans-unit>
             <trans-unit id="event.calendarize.startDate">
                 <source>Start date*</source>
+                <target>Startdatum</target>
             </trans-unit>
             <trans-unit id="event.calendarize.endDate">
                 <source>End date</source>
+                <target>Enddatum</target>
             </trans-unit>
             <trans-unit id="event.calendarize.startTime">
                 <source>Start time</source>
+                <target>Startzeit</target>
             </trans-unit>
             <trans-unit id="event.calendarize.endTime">
                 <source>End time</source>
+                <target>Endzeit</target>
             </trans-unit>
             <trans-unit id="event.calendarize.openEndTime">
                 <source>Open end?</source>
+                <target>Open end?</target>
             </trans-unit>
             <trans-unit id="event.calendarize.allDay">
                 <source>All day</source>
+                <target>Ganztägig</target>
             </trans-unit>
 
             <trans-unit id="controller.not_loggedin">
                 <source>Plugin "Calendarize frontend" is called on a page which is not restricted to frontend users. Please make sure, that it can be called only, when a frontend user is logged in!</source>
+                <target>Das Plugin "Calendarize frontend" ist auf einer Seite eingebunden, die nicht für Frontend user eingeschränkt ist. Bitte stellen Sie sicher, dass das Plugin nur aufgerufen werden kann, wenn sich ein Frontend user authentifiziert hat!</target>
             </trans-unit>
             <trans-unit id="controller.typoscript_missing">
                 <source>Please include the static TypoScript of ext:md_calendarize_frontend!</source>
+                <target>Bitte binden Sie das statische TypoScript der Extension md_calendarize_frontend ein!</target>
             </trans-unit>
             <trans-unit id="controller.access_error">
                 <source>You are not allowed to edit this record.</source>
+                <target>Keine Berechtigungen zum bearbeiten des Eintrags.</target>
             </trans-unit>
             <trans-unit id="controller.created">
                 <source>The event was successfully created.</source>
+                <target>Der Beitrag wurde erfolgreich erstellt.</target>
             </trans-unit>
             <trans-unit id="controller.updated">
                 <source>The event was successfully updated.</source>
+                <target>Der Beitrag wurde erfolgreich aktualisiert.</target>
             </trans-unit>
             <trans-unit id="controller.deleted">
                 <source>The event was successfully deleted.</source>
+                <target>Der Beitrag wurde erfolgreich gelöscht.</target>
             </trans-unit>
+
         </body>
     </file>
 </xliff>
