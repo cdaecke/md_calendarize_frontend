@@ -8,7 +8,7 @@
 
     <f:render partial="FormErrors" />
 
-    <f:form action="create"  name="event" object="{event}" enctype="multipart/form-data" additionalAttributes="{data-parsley-validate:''}">
+    <f:form action="create" name="event" object="{event}" enctype="multipart/form-data" additionalAttributes="{data-parsley-validate:''}">
         <f:comment>Add empty calendarize object in order to show first item for calendar entries</f:comment>
         <f:alias map="{event: '{calendarize:\'{0:empty}\'}'}">
             <f:render partial="Event/FormFields" arguments="{_all}" />

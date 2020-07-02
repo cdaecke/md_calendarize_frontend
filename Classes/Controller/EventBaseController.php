@@ -98,17 +98,33 @@ class EventBaseController extends ActionController
         parent::initializeAction();
 
         if (isset($this->arguments['event'])) {
-
             $args = $this->request->getArguments();
-            if ( isset($args['event']['calendarize']) ) {
 
-                // set configuration for date
-                $dateConfig = $this->arguments['event']
+            if (
+                (
+                    $args['action'] === 'create'
+                    || $args['action'] === 'update'
+                ) &&
+                isset($args['event']['calendarize'])
+            ) {
+                // property mapper configuration
+                $propertyMappingConfiguration = $this->arguments['event']
                     ->getPropertyMappingConfiguration()
                     ->getConfigurationFor('calendarize');
 
                 foreach ($args['event']['calendarize'] as $key => $items) {
-                    $dateConfig
+                    $propertyMappingConfiguration->allowProperties($key);
+                    $propertyMappingConfiguration->allowProperties($key . '.*')->allowAllProperties();
+                    $propertyMappingConfiguration->forProperty($key)->allowAllProperties();
+                    $propertyMappingConfiguration->forProperty($key . '.*')->allowAllProperties();
+                    $propertyMappingConfiguration->forProperty($key)->setTypeConverterOption(
+                        'TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter',
+                        \TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED,
+                        TRUE
+                    );
+
+                    // set configuration for date
+                    $propertyMappingConfiguration
                         ->getConfigurationFor($key)
                         ->forProperty('startDate')
                         ->setTypeConverterOption(
@@ -117,7 +133,7 @@ class EventBaseController extends ActionController
                             $this->settings['dateFormat']
                         );
 
-                    $dateConfig
+                    $propertyMappingConfiguration
                         ->getConfigurationFor($key)
                         ->forProperty('endDate')
                         ->setTypeConverterOption(
@@ -126,7 +142,7 @@ class EventBaseController extends ActionController
                             $this->settings['dateFormat']
                         );
 
-                    $dateConfig
+                    $propertyMappingConfiguration
                         ->getConfigurationFor($key)
                         ->forProperty('endDate')
                         ->setTypeConverterOption(
@@ -135,7 +151,7 @@ class EventBaseController extends ActionController
                             $this->settings['dateFormat']
                         );
 
-                    $dateConfig
+                    $propertyMappingConfiguration
                         ->getConfigurationFor($key)
                         ->forProperty('startTime')
                         ->setTypeConverter($this->objectManager->get(TimestampConverter::class))
@@ -145,7 +161,7 @@ class EventBaseController extends ActionController
                             $this->settings['timeFormat']
                         );
 
-                    $dateConfig
+                    $propertyMappingConfiguration
                         ->getConfigurationFor($key)
                         ->forProperty('endTime')
                         ->setTypeConverter($this->objectManager->get(TimestampConverter::class))
@@ -155,6 +171,10 @@ class EventBaseController extends ActionController
                             $this->settings['timeFormat']
                         );
                 }
+            } else if ($args['action'] === 'update' && isset($args['event'])) {
+                // no "calendarize" item was provided -> remove all
+                $args['event']['calendarize'] = null;
+                $this->request->setArguments($args);
             }
         }
 
