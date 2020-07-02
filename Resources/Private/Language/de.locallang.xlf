@@ -113,8 +113,8 @@
                 <target>Mehrere Kategorien können mit gedrückter CTRL-Taste ausgewählt werden.</target>
             </trans-unit>
             <trans-unit id="event.calendarize.legend">
-                <source>Date</source>
-                <target>Datum</target>
+                <source>Date %s</source>
+                <target>Datum %s</target>
             </trans-unit>
             <trans-unit id="event.calendarize.startDate">
                 <source>Start date*</source>
@@ -140,6 +140,14 @@
                 <source>All day</source>
                 <target>Ganztägig</target>
             </trans-unit>
+            <trans-unit id="event.calendarize.addItem">
+                <source>+ Add date</source>
+                <target>+ Datum hinzufügen</target>
+            </trans-unit>
+            <trans-unit id="event.calendarize.delItem">
+                <source>- Delete date</source>
+                <target>- Datum löschen</target>
+            </trans-unit>
 
             <trans-unit id="controller.not_loggedin">
                 <source>Plugin "Calendarize frontend" is called on a page which is not restricted to frontend users. Please make sure, that it can be called only, when a frontend user is logged in!</source>
@@ -164,6 +172,15 @@
             <trans-unit id="controller.deleted">
                 <source>The event was successfully deleted.</source>
                 <target>Der Beitrag wurde erfolgreich gelöscht.</target>
+            </trans-unit>
+
+            <trans-unit id="error.code.1593464351">
+                <source>Please enter a title for the event.</source>
+                <target>Der Titel des Eintrags darf nicht leer sein.</target>
+            </trans-unit>
+            <trans-unit id="error.code.1593465345">
+                <source>Please enter a start date for the event.</source>
+                <target>Das Startdatum des Eintrags darf nicht leer sein.</target>
             </trans-unit>
 
         </body>
