@@ -3,7 +3,18 @@
     <f:if condition="{validationResults.flattenedErrors}">
         <ul class="typo3-messages">
             <f:for each="{validationResults.flattenedErrors}" key="propertyPath" as="errors">
-                <f:for each="{errors}" as="error"><li class="alert-danger">{error}</li></f:for>
+                <f:for each="{errors}" as="error">
+                    <li class="alert-danger">
+                        <f:if condition="{f:translate(key: 'error.code.{error.code}')}">
+                            <f:then>
+                                <f:translate key="error.code.{error.code}" />
+                            </f:then>
+                            <f:else>
+                                {error}
+                            </f:else>
+                        </f:if>
+                    </li>
+                </f:for>
             </f:for>
         </ul>
     </f:if>
