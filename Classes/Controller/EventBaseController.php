@@ -14,12 +14,12 @@ namespace Mediadreams\MdCalendarizeFrontend\Controller;
 
 use HDNET\Calendarize\Domain\Model\Index;
 use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
+use Mediadreams\MdCalendarizeFrontend\Domain\Repository\CategoryRepository;
 use Mediadreams\MdCalendarizeFrontend\Property\TypeConverter\TimestampConverter;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Domain\Repository\CategoryRepository;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;

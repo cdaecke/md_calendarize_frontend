@@ -3,6 +3,12 @@ config.tx_extbase {
   persistence {
     classes {
 
+      Mediadreams\MdCalendarizeFrontend\Domain\Model\Category {
+        mapping {
+          tableName = sys_category
+        }
+      }
+
       Mediadreams\MdCalendarizeFrontend\Domain\Model\Event {
         mapping {
           tableName = tx_calendarize_domain_model_event
