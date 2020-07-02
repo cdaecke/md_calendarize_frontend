@@ -28,6 +28,6 @@ plugin.tx_mdcalendarizefrontend_frontend {
         dateFormatPlaceholder = DD.MM.YYYY
         timeFormat = H:i
         timeFormatPlaceholder = HH:MM
-        parentCategory = 33
+        parentCategory =
     }
 }
