@@ -13,6 +13,7 @@
                     <f:for each="{paginatedEvents}" as="eventItem" iteration="i">
                         <div class="col-sm-8 {f:if(condition:'{i.isEven}',then:'even',else:'odd')}">
                             {eventItem.title}
+                            ({eventItem.firstCalendarize.startDate -> f:format.date(format: '{settings.dateFormat}')}{f:if(condition:'{eventItem.calendarize -> f:count()} > 1',then:', ...')})
                         </div>
                         <div class="col-sm-4 text-right {f:if(condition:'{i.isEven}',then:'even',else:'odd')}">
                             <f:link.action action="edit" arguments="{event : eventItem}" class="mr-3" title="{f:translate(key: 'edit')}: {eventItem.title}"><i class="fas fa-pencil-alt"></i> <f:translate key="edit" /></f:link.action>

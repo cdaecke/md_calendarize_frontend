@@ -11,21 +11,21 @@
 
         <div class="row">
             <div class="form-group col-md-6 col">
-                <label for="start_{i.cycle}"><f:translate key="event.calendarize.startDate" /></label>
+                <label for="start_{i.index}"><f:translate key="event.calendarize.startDate" /></label>
                 <f:form.textfield
                         property="calendarize.{i.index}.startDate"
                         value="{item.startDate -> f:format.date(format: '{settings.dateFormat}')}"
-                        id="start_{i.cycle}"
+                        id="start_{i.index}"
                         class="form-control"
                         additionalAttributes="{placeholder:'{settings.dateFormatPlaceholder}', data-parsley-trigger:'change focusout', required:''}" />
             </div>
 
             <div class="form-group col-md-6 col">
-                <label for="end_{i.cycle}"><f:translate key="event.calendarize.endDate" /></label>
+                <label for="end_{i.index}"><f:translate key="event.calendarize.endDate" /></label>
                 <f:form.textfield
                         property="calendarize.{i.index}.endDate"
                         value="{item.endDate -> f:format.date(format: '{settings.dateFormat}')}"
-                        id="end_{i.cycle}"
+                        id="end_{i.index}"
                         class="form-control"
                         additionalAttributes="{placeholder:'{settings.dateFormatPlaceholder}'}" />
             </div>
@@ -33,21 +33,21 @@
 
         <div class="row times{f:if(condition:'{item.allDay}',then:' d-none')}">
             <div class="form-group col-md-3">
-                <label for="startTime_{i.cycle}"><f:translate key="event.calendarize.startTime" /></label>
+                <label for="startTime_{i.index}"><f:translate key="event.calendarize.startTime" /></label>
                 <f:form.textfield
                         property="calendarize.{i.index}.startTime"
                         value="{f:if(condition:'{item.startTime}',then:'{item.startTime -> md:utcTime(format: \'{settings.timeFormat}\')}',else:'')}"
-                        id="startTime_{i.cycle}"
+                        id="startTime_{i.index}"
                         class="form-control"
                         additionalAttributes="{placeholder:'{settings.timeFormatPlaceholder}'}" />
             </div>
 
             <div class="form-group col-md-3 endTime{f:if(condition:'{item.openEndTime}',then:' d-none')}">
-                <label for="endTime_{i.cycle}"><f:translate key="event.calendarize.endTime" /></label>
+                <label for="endTime_{i.index}"><f:translate key="event.calendarize.endTime" /></label>
                 <f:form.textfield
                         property="calendarize.{i.index}.endTime"
                         value="{f:if(condition:'{item.endTime} > 0',then:'{item.endTime -> md:utcTime(format: \'{settings.timeFormat}\')}',else:'')}"
-                        id="endTime_{i.cycle}"
+                        id="endTime_{i.index}"
                         class="form-control"
                         additionalAttributes="{placeholder:'{settings.timeFormatPlaceholder}'}" />
             </div>
@@ -56,9 +56,9 @@
                     <f:form.checkbox
                             property="calendarize.{i.index}.openEndTime"
                             value="1"
-                            id="openEndTime_{i.cycle}"
+                            id="openEndTime_{i.index}"
                             class="form-check-input openEndTime" />
-                    <label for="openEndTime_{i.cycle}" class="form-check-label"><f:translate key="event.calendarize.openEndTime" /></label>
+                    <label for="openEndTime_{i.index}" class="form-check-label"><f:translate key="event.calendarize.openEndTime" /></label>
                 </div>
             </div>
         </div>
@@ -67,9 +67,9 @@
             <f:form.checkbox
                     property="calendarize.{i.index}.allDay"
                     value="1"
-                    id="allDay_{i.cycle}"
+                    id="allDay_{i.index}"
                     class="form-check-input allDay" />
-            <label for="allDay_{i.cycle}" class="form-check-label"><f:translate key="event.calendarize.allDay" /></label>
+            <label for="allDay_{i.index}" class="form-check-label"><f:translate key="event.calendarize.allDay" /></label>
         </div>
 
         <f:form.hidden
