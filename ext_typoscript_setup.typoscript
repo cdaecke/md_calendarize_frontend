@@ -1,3 +1,6 @@
+/*
+@todo Remove, when TYPO3 9 support is dropped
+*/
 
 config.tx_extbase {
   persistence {
