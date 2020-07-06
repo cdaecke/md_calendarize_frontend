@@ -19,7 +19,6 @@ class EventRepository extends \HDNET\Calendarize\Domain\Repository\EventReposito
      *
      */
     protected $defaultOrderings = [
-        //'datetime' => \TYPO3\CMS\Extbase\Persistence\QueryInterface::ORDER_DESCENDING,
-        //'uid' => \TYPO3\CMS\Extbase\Persistence\QueryInterface::ORDER_DESCENDING,
+        'uid' => \TYPO3\CMS\Extbase\Persistence\QueryInterface::ORDER_DESCENDING,
     ];
 }
