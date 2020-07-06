@@ -44,4 +44,20 @@ class Event extends \HDNET\Calendarize\Domain\Model\Event
     {
         $this->mdUser = $mdUser;
     }
+
+    /**
+     * Get first calendarize item.
+     *
+     * @return \TYPO3\CMS\Extbase\Persistence\ObjectStorage|null
+     */
+    public function getFirstCalendarize()
+    {
+        $calendarize = $this->getCalendarize();
+        if (!is_null($calendarize)) {
+            $calendarize->rewind();
+            return $calendarize->current();
+        } else {
+            return null;
+        };
+    }
 }

@@ -24,5 +24,14 @@ call_user_func(
             \TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider::class,
             ['source' => 'EXT:md_calendarize_frontend/Resources/Public/Icons/user_plugin_frontend.svg']
         );
+
+        // overwrite Calendarize event model with MdCalendarizeFrontend event model
+        // this is needed in order have new properties available everywhere
+        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\Container\Container::class)
+            ->registerImplementation(
+                \HDNET\Calendarize\Domain\Model\Event::class,
+                \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event::class
+            );
+
     }
 );
