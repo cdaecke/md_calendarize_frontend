@@ -89,11 +89,9 @@
                 property="calendarize.{i.index}.day"
                 value="weekday" />
 
-        <f:if condition="{i.index} > 0">
-            <div class="text-right mb-3">
-                <a href="javascript:void(null)" class="btn btn-link p-0 delItem" data-item="{i.index}"><f:translate key="event.calendarize.delItem" /></a>
-            </div>
-        </f:if>
+        <div class="text-right mb-3 {f:if(condition:'{i.index} == 0',then:'d-none')}">
+            <a href="javascript:void(null)" class="btn btn-link p-0 delItem" data-item="{i.index}"><f:translate key="event.calendarize.delItem" /></a>
+        </div>
     </fieldset>
 </f:for>
 
