@@ -65,7 +65,7 @@
         </div>
     </div>
 
-    <f:if condition="categories">
+    <f:if condition="{settings.parentCategory}">
         <div class="form-group">
             <label for="categories"><f:translate key="event.categories" /></label>
             <f:form.select
