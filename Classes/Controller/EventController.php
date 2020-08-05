@@ -75,7 +75,7 @@ class EventController extends EventBaseController
      * action edit
      * 
      * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $event
-     * @ignorevalidation $event
+     * @TYPO3\CMS\Extbase\Annotation\IgnoreValidation("event")
      * @return void
      */
     public function editAction(Event $event)
