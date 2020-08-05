@@ -1,8 +1,8 @@
 {
     "name": "mediadreams/md_calendarize_frontend",
     "type": "typo3-cms-extension",
-    "description": "This extension allows to add calendarize items in the frontend.",
-    "version": "0.0.1",
+    "description": "This TYPO3 extension enables frontend users to add ext:calendarize items in the frontend.",
+    "version": "1.0.0",
     "license": "GPL-2.0+",
     "keywords": [
         "TYPO3",
@@ -26,7 +26,7 @@
         "source": "https://github.com/cdaecke/md_calendarize_frontend"
     },
     "require": {
-        "typo3/cms-core": "^9.5",
+        "typo3/cms-core": "^9.5 || ^10.4",
         "lochmueller/calendarize": ">=6.0,<7.0"
     },
     "autoload": {
@@ -35,7 +35,6 @@
         }
     },
     "replace": {
-        "mediadreams/md_calendarize_frontend": "self.version",
-        "typo3-ter/md-calendarize-frontend": "self.version"
+        "typo3-ter/md_calendarize_frontend": "self.version"
     }
 }

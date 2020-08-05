@@ -12,18 +12,18 @@
 
 $EM_CONF[$_EXTKEY] = [
     'title' => 'Calendarize frontend',
-    'description' => 'This extension allows to add calendarize items in the frontend.',
+    'description' => 'This extension enables frontend users to add ext:calendarize items in the frontend.',
     'category' => 'plugin',
     'author' => 'Christoph Daecke',
     'author_email' => 'typo3@mediadreams.org',
-    'state' => 'alpha',
+    'state' => 'stable',
     'uploadfolder' => 0,
     'createDirs' => '',
     'clearCacheOnLoad' => 0,
-    'version' => '0.0.1',
+    'version' => '1.0.0',
     'constraints' => [
         'depends' => [
-            'typo3' => '9.5.0-9.5.99',
+            'typo3' => '9.5.0-10.4.99',
             'calendarize' => '6.0.0-6.99.99',
         ],
         'conflicts' => [],
