@@ -58,6 +58,6 @@ class Event extends \HDNET\Calendarize\Domain\Model\Event
             return $calendarize->current();
         } else {
             return null;
-        };
+        }
     }
 }
