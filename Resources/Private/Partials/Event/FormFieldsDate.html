@@ -101,7 +101,7 @@
 
 <script>
     jQuery(document).ready(function ($) {
-        var formElementCount = {elementCount + 1},
+        var formElementCount = <f:format.raw>{elementCount + 1}</f:format.raw>,
             source = $('#itemContainer_0'),
             cloneMaster = source.clone();
 
