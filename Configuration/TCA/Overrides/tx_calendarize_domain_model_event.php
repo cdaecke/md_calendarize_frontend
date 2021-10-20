@@ -16,13 +16,11 @@ $tmp_md_calendarize_frontend_columns = [
             'maxitems' => 1,
             'default' => 0,
             'eval' => 'int',
-            'wizards' => [
-                'suggest' => [
-                    'type' => 'suggest',
-                    'default' => [
-                        'searchWholePhrase' => true
-                    ]
-                ],
+            'suggestOptions' => [
+                'type' => 'suggest',
+                'default' => [
+                    'searchWholePhrase' => true
+                ]
             ],
         ]
     ],
