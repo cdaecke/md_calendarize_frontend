@@ -7,7 +7,7 @@ Templates are ready to use with the [bootstrap framework](https://getbootstrap.c
 ## Requirements
 
 - TYPO3 >= 9.5
-- ext:calendarize >= 6.0
+- ext:calendarize >= 8.0
 
 ## Installation
 
