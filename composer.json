@@ -27,7 +27,7 @@
     },
     "require": {
         "typo3/cms-core": "^9.5 || ^10.4",
-        "lochmueller/calendarize": ">=6.0,<10.0"
+		"lochmueller/calendarize": ">=8.0,<12.0"
     },
     "autoload": {
         "psr-4": {
