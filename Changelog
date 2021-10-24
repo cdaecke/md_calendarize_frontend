@@ -1,3 +1,9 @@
+Version 1.0.4 (2021-10-24)
+    [BUGFIX] add slug when creating an event (slug was added in ext:calendarize v10)
+
+    All changes
+    https://github.com/cdaecke/md_calendarize_frontend/compare/1.0.3...1.0.4
+
 Version 1.0.3 (2021-10-21)
     [FEATURE] Compatibility with ext:calendarize v11
 
