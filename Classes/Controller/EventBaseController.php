@@ -13,14 +13,18 @@ namespace Mediadreams\MdCalendarizeFrontend\Controller;
  ***/
 
 use HDNET\Calendarize\Domain\Model\Index;
+use \HDNET\Calendarize\Domain\Repository\IndexRepository;
+use HDNET\Calendarize\Service\Url\SlugService;
 use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
 use Mediadreams\MdCalendarizeFrontend\Domain\Repository\CategoryRepository;
+use Mediadreams\MdCalendarizeFrontend\Domain\Repository\EventRepository;
 use Mediadreams\MdCalendarizeFrontend\Property\TypeConverter\TimestampConverter;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
@@ -32,18 +36,38 @@ class EventBaseController extends ActionController
     /**
      * eventRepository
      *
-     * @var \Mediadreams\MdCalendarizeFrontend\Domain\Repository\EventRepository
-     * @TYPO3\CMS\Extbase\Annotation\Inject
+     * @var EventRepository
      */
     protected $eventRepository = null;
 
     /**
      * indexRepository
      *
-     * @var \HDNET\Calendarize\Domain\Repository\IndexRepository
-     * @TYPO3\CMS\Extbase\Annotation\Inject
+     * @var IndexRepository
      */
     protected $indexRepository = null;
+
+    /**
+     * @var SlugService
+     */
+    protected $slugService;
+
+    /**
+     * EventBaseController constructor
+     *
+     * @param EventRepository $eventRepository
+     * @param IndexRepository $indexRepository
+     * @param SlugService $slugService
+     */
+    public function __construct(
+        EventRepository $eventRepository,
+        IndexRepository $indexRepository,
+        SlugService $slugService)
+    {
+        $this->eventRepository = $eventRepository;
+        $this->indexRepository = $indexRepository;
+        $this->slugService = $slugService;
+    }
 
     /**
      * Deactivate errorFlashMessage
@@ -69,6 +93,16 @@ class EventBaseController extends ActionController
                 '',
                 AbstractMessage::ERROR
             );
+
+            if ($this->actionMethodName !== 'listAction') {
+                $this->addFlashMessage(
+                    LocalizationUtility::translate('controller.please_login','md_calendarize_frontend'),
+                    '',
+                    AbstractMessage::ERROR
+                );
+
+                $this->redirect('list');
+            }
         } else if (!isset($this->settings['dateFormat'])) { // check if TypoScript is loaded
             $this->addFlashMessage(
                 LocalizationUtility::translate('controller.typoscript_missing','md_calendarize_frontend'),
@@ -180,7 +214,7 @@ class EventBaseController extends ActionController
 
         // get fe_user id
         $context = GeneralUtility::makeInstance(Context::class);
-        $this->feuserUid = $context->getPropertyFromAspect('frontend.user', 'id');
+        $this->feuserUid = (int)$context->getPropertyFromAspect('frontend.user', 'id');
     }
 
     /**
@@ -211,7 +245,26 @@ class EventBaseController extends ActionController
      */
     protected function setIndexObjects(Event $event): void
     {
-        foreach ($event->getCalendarize() as $items) {
+        // Generate slug
+        $neededItems = [];
+        foreach ($event->getCalendarize() as $key => $item) {
+            $itemKey = ['key' => $key];
+            $neededItems[] = array_merge($this->objectToArray($item), $itemKey);
+        }
+
+        $slugs = $this->slugService->generateSlugForItems(
+            'Event',
+            $this->objectToArray($event),
+            $neededItems
+        );
+
+        $itemsWithSlug = [];
+        foreach ($neededItems as $key => $value) {
+            $itemsWithSlug[$value['key']] = array_merge($value, $slugs[$key] ?? []);
+        }
+
+        // Save items
+        foreach ($event->getCalendarize() as $key => $items) {
             /** @var $indexObject \HDNET\Calendarize\Domain\Model\Index */
             $indexObject = $this->objectManager->get(Index::class);
             $indexObject->setForeignUid($event->getUid());
@@ -221,6 +274,10 @@ class EventBaseController extends ActionController
             $indexObject->setAllDay($items->isAllDay());
             $indexObject->setOpenEndTime($items->isOpenEndTime());
             $indexObject->setStartDate($items->getStartDate());
+
+            // get unique slug
+            $slug = $this->slugService->makeSlugUnique($itemsWithSlug[$key]);
+            $indexObject->setSlug($slug);
 
             if ( !empty($items->getEndDate()) ) {
                 $indexObject->setEndDate($items->getEndDate());
@@ -237,6 +294,10 @@ class EventBaseController extends ActionController
             }
 
             $this->indexRepository->add($indexObject);
+
+            // persist data in order to get correct slug for next item
+            $persistenceManager = $this->objectManager->get(PersistenceManager::class);
+            $persistenceManager->persistAll();
         }
     }
 
@@ -258,5 +319,45 @@ class EventBaseController extends ActionController
                 $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($eventUid, \PDO::PARAM_INT))
             )
             ->execute();
+    }
+
+    /**
+     * Convert an object to an array
+     *
+     * @param object $obj
+     * @return array
+     * @throws \ReflectionException
+     */
+    protected function objectToArray(object $obj): array
+    {
+        $reflectionClass = new \ReflectionClass(get_class($obj));
+        $arr = array();
+        foreach ($reflectionClass->getProperties() as $prop) {
+            $prop->setAccessible(true);
+
+            $val = '';
+            if ($prop->getName() === 'startDate' && !empty($prop->getValue($obj))) {
+                $val = $prop->getValue($obj)->format('Y-m-d');
+            } else {
+                $val = $prop->getValue($obj);
+            }
+
+            $arr[$this->getDecamelized($prop->getName())] = $val;
+            $prop->setAccessible(false);
+        }
+
+        return $arr;
+    }
+
+
+    /**
+     * Get a camel case string decamelized, eg. "startDate" will become "start_date"
+     *
+     * @param string $str
+     * @return string
+     */
+    protected function getDecamelized(string $str): string
+    {
+        return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $str));
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Mediadreams\MdCalendarizeFrontend\Controller;
 
 /***
@@ -13,6 +14,8 @@ namespace Mediadreams\MdCalendarizeFrontend\Controller;
  ***/
 
 use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
+use Mediadreams\MdCalendarizeFrontend\Helper\SlugHelper;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
@@ -24,28 +27,30 @@ class EventController extends EventBaseController
 
     /**
      * action list
-     * 
+     *
      * @return void
      */
     public function listAction()
     {
-        $events = $this->eventRepository->findByMdUser($this->feuserUid);
-        $this->view->assign('events', $events);
+        if ($this->feuserUid > 0) {
+            $events = $this->eventRepository->findByMdUser($this->feuserUid);
+            $this->view->assign('events', $events);
+        }
     }
 
     /**
      * action new
-     * 
+     *
      * @return void
      */
     public function newAction()
     {
-        
+
     }
 
     /**
      * action create
-     * 
+     *
      * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $event
      * @TYPO3\CMS\Extbase\Annotation\Validate("Mediadreams\MdCalendarizeFrontend\Validator\EventValidator", param="event")
      * @return void
@@ -60,10 +65,17 @@ class EventController extends EventBaseController
         $persistenceManager = $this->objectManager->get(PersistenceManager::class);
         $persistenceManager->persistAll();
 
+        /** @var SlugHelper $slugHelper */
+        $slugHelper = GeneralUtility::makeInstance(SlugHelper::class);
+        $slug = $slugHelper->getSlug($event, ['title' => $event->getTitle()], 'tx_calendarize_domain_model_event');
+        $event->setSlug($slug);
+
+        $this->eventRepository->update($event);
+
         $this->setIndexObjects($event);
 
         $this->addFlashMessage(
-            LocalizationUtility::translate('controller.created','md_calendarize_frontend'),
+            LocalizationUtility::translate('controller.created', 'md_calendarize_frontend'),
             '',
             \TYPO3\CMS\Core\Messaging\AbstractMessage::OK
         );
@@ -73,7 +85,7 @@ class EventController extends EventBaseController
 
     /**
      * action edit
-     * 
+     *
      * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $event
      * @TYPO3\CMS\Extbase\Annotation\IgnoreValidation("event")
      * @return void
@@ -86,7 +98,7 @@ class EventController extends EventBaseController
 
     /**
      * action update
-     * 
+     *
      * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $event
      * @TYPO3\CMS\Extbase\Annotation\Validate("Mediadreams\MdCalendarizeFrontend\Validator\EventValidator", param="event")
      * @return void
@@ -114,7 +126,7 @@ class EventController extends EventBaseController
         $this->setIndexObjects($event);
 
         $this->addFlashMessage(
-            LocalizationUtility::translate('controller.updated','md_calendarize_frontend'),
+            LocalizationUtility::translate('controller.updated', 'md_calendarize_frontend'),
             '',
             \TYPO3\CMS\Core\Messaging\AbstractMessage::OK
         );
@@ -124,7 +136,7 @@ class EventController extends EventBaseController
 
     /**
      * action delete
-     * 
+     *
      * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $event
      * @return void
      */
@@ -139,7 +151,7 @@ class EventController extends EventBaseController
         $this->eventRepository->remove($event);
 
         $this->addFlashMessage(
-            LocalizationUtility::translate('controller.deleted','md_calendarize_frontend'),
+            LocalizationUtility::translate('controller.deleted', 'md_calendarize_frontend'),
             '',
             \TYPO3\CMS\Core\Messaging\AbstractMessage::OK
         );
