@@ -117,6 +117,9 @@
             <trans-unit id="controller.not_loggedin">
                 <source>Plugin "Calendarize frontend" is called on a page which is not restricted to frontend users. Please make sure, that it can be called only, when a frontend user is logged in!</source>
             </trans-unit>
+			<trans-unit id="controller.please_login">
+				<source>Please log in to use this feature!</source>
+			</trans-unit>
             <trans-unit id="controller.typoscript_missing">
                 <source>Please include the static TypoScript of ext:md_calendarize_frontend!</source>
             </trans-unit>

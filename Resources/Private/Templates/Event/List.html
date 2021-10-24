@@ -22,6 +22,8 @@
                     </f:for>
                 </div>
             </f:widget.paginate>
+
+            <f:link.action action="new" class="btn btn-primary"><f:translate key="new" /></f:link.action>
         </f:then>
         <f:else>
             <div class="no-items">
@@ -29,8 +31,6 @@
             </div>
         </f:else>
     </f:if>
-
-    <f:link.action action="new" class="btn btn-primary"><f:translate key="new" /></f:link.action>
 
     <!-- Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
