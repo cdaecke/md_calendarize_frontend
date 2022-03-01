@@ -6,22 +6,28 @@
 
     <f:flashMessages />
 
-    <f:if condition="{events}">
+    <f:if condition="{pagination.paginator.paginatedItems}">
         <f:then>
-            <f:widget.paginate objects="{events}" as="paginatedEvents" configuration="{itemsPerPage: 10}">
-                <div class="row my-3">
-                    <f:for each="{paginatedEvents}" as="eventItem" iteration="i">
-                        <div class="col-sm-8 {f:if(condition:'{i.isEven}',then:'even',else:'odd')}">
-                            {eventItem.title}
-                            ({eventItem.firstCalendarize.startDate -> f:format.date(format: '{settings.dateFormat}')}{f:if(condition:'{eventItem.calendarize -> f:count()} > 1',then:', ...')})
-                        </div>
-                        <div class="col-sm-4 text-right {f:if(condition:'{i.isEven}',then:'even',else:'odd')}">
-                            <f:link.action action="edit" arguments="{event : eventItem}" class="mr-3" title="{f:translate(key: 'edit')}: {eventItem.title}"><i class="fas fa-pencil-alt"></i> <f:translate key="edit" /></f:link.action>
-                            <f:link.action action="delete" arguments="{event : eventItem}" class="text-danger delete" additionalAttributes="{data-toggle: 'modal', data-target: '#deleteModal'}" title="{f:translate(key: 'delete')}: {eventItem.title}"><i class="fas fa-trash-alt"></i> <f:translate key="delete" /></f:link.action>
-                        </div>
-                    </f:for>
-                </div>
-            </f:widget.paginate>
+            <f:if condition="{settings.paginate.insertAbove}">
+                <f:render partial="Pagination" arguments="{pagination: pagination.pagination, paginator: pagination.paginator}" />
+            </f:if>
+
+            <div class="row my-3">
+                <f:for each="{pagination.paginator.paginatedItems}" as="eventItem" iteration="i">
+                    <div class="col-sm-8 {f:if(condition:'{i.isEven}',then:'even',else:'odd')}">
+                        {eventItem.title}
+                        ({eventItem.firstCalendarize.startDate -> f:format.date(format: '{settings.dateFormat}')}{f:if(condition:'{eventItem.calendarize -> f:count()} > 1',then:', ...')})
+                    </div>
+                    <div class="col-sm-4 text-right {f:if(condition:'{i.isEven}',then:'even',else:'odd')}">
+                        <f:link.action action="edit" arguments="{event : eventItem}" class="mr-3" title="{f:translate(key: 'edit')}: {eventItem.title}"><i class="fas fa-pencil-alt"></i> <f:translate key="edit" /></f:link.action>
+                        <f:link.action action="delete" arguments="{event : eventItem}" class="text-danger delete" additionalAttributes="{data-toggle: 'modal', data-target: '#deleteModal'}" title="{f:translate(key: 'delete')}: {eventItem.title}"><i class="fas fa-trash-alt"></i> <f:translate key="delete" /></f:link.action>
+                    </div>
+                </f:for>
+            </div>
+
+            <f:if condition="{settings.paginate.insertBelow}">
+                <f:render partial="Pagination" arguments="{pagination: pagination.pagination, paginator: pagination.paginator}" />
+            </f:if>
         </f:then>
         <f:else>
             <div class="no-items">
@@ -30,7 +36,7 @@
         </f:else>
     </f:if>
 
-    <f:link.action action="new" class="btn btn-primary"><f:translate key="new" /></f:link.action>
+    <f:link.action action="new" class="btn btn-primary mt-3"><f:translate key="new" /></f:link.action>
 
     <!-- Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">

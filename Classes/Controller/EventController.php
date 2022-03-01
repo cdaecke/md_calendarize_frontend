@@ -34,6 +34,13 @@ class EventController extends EventBaseController
     {
         if ($this->feuserUid > 0) {
             $events = $this->eventRepository->findByMdUser($this->feuserUid);
+
+            $this->assignPagination(
+                $events,
+                (int)$this->settings['paginate']['itemsPerPage'],
+                (int)$this->settings['paginate']['maximumNumberOfLinks']
+            );
+
             $this->view->assign('events', $events);
         }
     }

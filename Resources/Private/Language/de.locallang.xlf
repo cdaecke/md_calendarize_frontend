@@ -187,6 +187,27 @@
                 <target>Das Startdatum des Eintrags darf nicht leer sein.</target>
             </trans-unit>
 
+            <trans-unit id="pagination.overall" resname="pagination.overall">
+                <source>Page %s of %s</source>
+                <target>Seite %s von %s</target>
+            </trans-unit>
+            <trans-unit id="pagination.first" resname="pagination.first">
+                <source>First</source>
+                <target>Anfang</target>
+            </trans-unit>
+            <trans-unit id="pagination.last" resname="">
+                <source>Last</source>
+                <target>Ende</target>
+            </trans-unit>
+            <trans-unit id="pagination.previous" resname="pagination.previous">
+                <source>Previous</source>
+                <target>Vorherige</target>
+            </trans-unit>
+            <trans-unit id="pagination.next" resname="pagination.next">
+                <source>Next</source>
+                <target>Nächste</target>
+            </trans-unit>
+
         </body>
     </file>
 </xliff>

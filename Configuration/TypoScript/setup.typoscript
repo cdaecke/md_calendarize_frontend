@@ -29,5 +29,12 @@ plugin.tx_mdcalendarizefrontend_frontend {
         timeFormat = H:i
         timeFormatPlaceholder = HH:MM
         parentCategory =
+
+        paginate {
+            itemsPerPage = 10
+            insertAbove = 0
+            insertBelow = 1
+            maximumNumberOfLinks = 6
+        }
     }
 }

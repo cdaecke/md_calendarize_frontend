@@ -12,6 +12,7 @@ namespace Mediadreams\MdCalendarizeFrontend\Controller;
  *
  ***/
 
+use GeorgRinger\NumberedPagination\NumberedPagination;
 use HDNET\Calendarize\Domain\Model\Index;
 use \HDNET\Calendarize\Domain\Repository\IndexRepository;
 use HDNET\Calendarize\Service\Url\SlugService;
@@ -24,6 +25,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Extbase\Pagination\QueryResultPaginator;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
@@ -359,5 +361,34 @@ class EventBaseController extends ActionController
     protected function getDecamelized(string $str): string
     {
         return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $str));
+    }
+
+    /**
+     * Assign pagination to current view object
+     *
+     * @param $items
+     * @param int $itemsPerPage
+     * @param int $maximumNumberOfLinks
+     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException
+     */
+    protected function assignPagination($items, $itemsPerPage = 10, $maximumNumberOfLinks = 5)
+    {
+        $currentPage = $this->request->hasArgument('currentPage') ? (int)$this->request->getArgument('currentPage') : 1;
+
+        $paginator = new QueryResultPaginator(
+            $items,
+            $currentPage,
+            $itemsPerPage
+        );
+
+        $pagination = new NumberedPagination(
+            $paginator,
+            $maximumNumberOfLinks
+        );
+
+        $this->view->assign('pagination', [
+            'paginator' => $paginator,
+            'pagination' => $pagination,
+        ]);
     }
 }
