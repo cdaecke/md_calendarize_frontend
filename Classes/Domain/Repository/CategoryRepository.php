@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Mediadreams\MdCalendarizeFrontend\Domain\Repository;
 
 /***
@@ -15,7 +17,8 @@ namespace Mediadreams\MdCalendarizeFrontend\Domain\Repository;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 
 /**
- * Repository for Category models.
+ * Class CategoryRepository
+ * @package Mediadreams\MdCalendarizeFrontend\Domain\Repository
  */
 class CategoryRepository extends \TYPO3\CMS\Extbase\Domain\Repository\CategoryRepository
 {

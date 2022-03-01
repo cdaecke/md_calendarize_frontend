@@ -1,163 +1,165 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <xliff version="1.0">
-    <file source-language="en" datatype="plaintext" original="messages" date="2020-06-17T12:08:09Z" product-name="md_calendarize_frontend">
-        <header/>
-        <body>
-            <trans-unit id="tx_mdcalendarizefrontend_domain_model_event">
-                <source>Event</source>
-            </trans-unit>
-            <trans-unit id="tx_mdcalendarizefrontend_domain_model_event.md_user">
-                <source>Frontend user</source>
-            </trans-unit>
-            <trans-unit id="tca.tab">
-                <source>User</source>
-            </trans-unit>
+	<file source-language="en" datatype="plaintext" original="messages" date="2020-06-17T12:08:09Z" product-name="md_calendarize_frontend">
+		<header/>
+		<body>
+			<trans-unit id="tx_mdcalendarizefrontend_domain_model_event">
+				<source>Event</source>
+			</trans-unit>
+			<trans-unit id="tx_mdcalendarizefrontend_domain_model_event.md_user">
+				<source>Frontend user</source>
+			</trans-unit>
+			<trans-unit id="tca.tab">
+				<source>User</source>
+			</trans-unit>
 
-            <trans-unit id="list_events">
-                <source>Your calendar entries</source>
-            </trans-unit>
-            <trans-unit id="no_items">
-                <source>There are currently no calendar entries.</source>
-            </trans-unit>
-            <trans-unit id="new">
-                <source>Create new</source>
-            </trans-unit>
-            <trans-unit id="edit">
-                <source>Edit</source>
-            </trans-unit>
-            <trans-unit id="delete">
-                <source>Delete</source>
-            </trans-unit>
+			<trans-unit id="list_events">
+				<source>Your calendar entries</source>
+			</trans-unit>
+			<trans-unit id="no_items">
+				<source>There are currently no calendar entries.</source>
+			</trans-unit>
+			<trans-unit id="new">
+				<source>Create new</source>
+			</trans-unit>
+			<trans-unit id="edit">
+				<source>Edit</source>
+			</trans-unit>
+			<trans-unit id="delete">
+				<source>Delete</source>
+			</trans-unit>
 
-            <trans-unit id="new_event">
-                <source>New event</source>
-            </trans-unit>
-            <trans-unit id="edit_event">
-                <source>Edit event</source>
-            </trans-unit>
+			<trans-unit id="new_event">
+				<source>New event</source>
+			</trans-unit>
+			<trans-unit id="edit_event">
+				<source>Edit event</source>
+			</trans-unit>
 
-            <trans-unit id="modal.title">
-                <source>Delete entry</source>
-            </trans-unit>
-            <trans-unit id="modal.close">
-                <source>Close</source>
-            </trans-unit>
-            <trans-unit id="modal.delete">
-                <source>Delete</source>
-            </trans-unit>
-            <trans-unit id="modal.text">
-                <source>Do you realy want to delete this calendar entry?</source>
-            </trans-unit>
+			<trans-unit id="modal.title">
+				<source>Delete entry</source>
+			</trans-unit>
+			<trans-unit id="modal.close">
+				<source>Close</source>
+			</trans-unit>
+			<trans-unit id="modal.delete">
+				<source>Delete</source>
+			</trans-unit>
+			<trans-unit id="modal.text">
+				<source>Do you realy want to delete this calendar entry?</source>
+			</trans-unit>
 
-            <trans-unit id="save">
-                <source>Save</source>
-            </trans-unit>
-            <trans-unit id="or">
-                <source>or</source>
-            </trans-unit>
-            <trans-unit id="back_to_list">
-                <source>Back to list</source>
-            </trans-unit>
+			<trans-unit id="save">
+				<source>Save</source>
+			</trans-unit>
+			<trans-unit id="or">
+				<source>or</source>
+			</trans-unit>
+			<trans-unit id="back_to_list">
+				<source>Back to list</source>
+			</trans-unit>
 
-            <trans-unit id="event.title">
-                <source>Title*</source>
-            </trans-unit>
-            <trans-unit id="event.abstract">
-                <source>Abstract</source>
-            </trans-unit>
-            <trans-unit id="event.description">
-                <source>Description</source>
-            </trans-unit>
-            <trans-unit id="event.location">
-                <source>Location</source>
-            </trans-unit>
-            <trans-unit id="event.locationLink">
-                <source>Location link</source>
-            </trans-unit>
-            <trans-unit id="event.organizer">
-                <source>Organizer</source>
-            </trans-unit>
-            <trans-unit id="event.organizerLink">
-                <source>Organizer link</source>
-            </trans-unit>
-            <trans-unit id="event.categories">
-                <source>Categories</source>
-            </trans-unit>
-            <trans-unit id="event.categoriesHelp">
-                <source>Select more categories with pressed ctrl-key.</source>
-            </trans-unit>
-            <trans-unit id="event.calendarize.legend">
-                <source>Date %s</source>
-            </trans-unit>
-            <trans-unit id="event.calendarize.startDate">
-                <source>Start date*</source>
-            </trans-unit>
-            <trans-unit id="event.calendarize.endDate">
-                <source>End date</source>
-            </trans-unit>
-            <trans-unit id="event.calendarize.startTime">
-                <source>Start time</source>
-            </trans-unit>
-            <trans-unit id="event.calendarize.endTime">
-                <source>End time</source>
-            </trans-unit>
-            <trans-unit id="event.calendarize.openEndTime">
-                <source>Open end?</source>
-            </trans-unit>
-            <trans-unit id="event.calendarize.allDay">
-                <source>All day</source>
-            </trans-unit>
-            <trans-unit id="event.calendarize.addItem">
-                <source>+ Add date</source>
-            </trans-unit>
-            <trans-unit id="event.calendarize.delItem">
-                <source>- Delete date</source>
-            </trans-unit>
+			<trans-unit id="event.title">
+				<source>Title*</source>
+			</trans-unit>
+			<trans-unit id="event.abstract">
+				<source>Abstract</source>
+			</trans-unit>
+			<trans-unit id="event.description">
+				<source>Description</source>
+			</trans-unit>
+			<trans-unit id="event.location">
+				<source>Location</source>
+			</trans-unit>
+			<trans-unit id="event.locationLink">
+				<source>Location link</source>
+			</trans-unit>
+			<trans-unit id="event.organizer">
+				<source>Organizer</source>
+			</trans-unit>
+			<trans-unit id="event.organizerLink">
+				<source>Organizer link</source>
+			</trans-unit>
+			<trans-unit id="event.categories">
+				<source>Categories</source>
+			</trans-unit>
+			<trans-unit id="event.categoriesHelp">
+				<source>Select more categories with pressed ctrl-key.</source>
+			</trans-unit>
+			<trans-unit id="event.calendarize.legend">
+				<source>Date %s</source>
+			</trans-unit>
+			<trans-unit id="event.calendarize.startDate">
+				<source>Start date*</source>
+			</trans-unit>
+			<trans-unit id="event.calendarize.endDate">
+				<source>End date</source>
+			</trans-unit>
+			<trans-unit id="event.calendarize.startTime">
+				<source>Start time</source>
+			</trans-unit>
+			<trans-unit id="event.calendarize.endTime">
+				<source>End time</source>
+			</trans-unit>
+			<trans-unit id="event.calendarize.openEndTime">
+				<source>Open end?</source>
+			</trans-unit>
+			<trans-unit id="event.calendarize.allDay">
+				<source>All day</source>
+			</trans-unit>
+			<trans-unit id="event.calendarize.addItem">
+				<source>+ Add date</source>
+			</trans-unit>
+			<trans-unit id="event.calendarize.delItem">
+				<source>- Delete date</source>
+			</trans-unit>
 
-            <trans-unit id="controller.not_loggedin">
-                <source>Plugin "Calendarize frontend" is called on a page which is not restricted to frontend users. Please make sure, that it can be called only, when a frontend user is logged in!</source>
-            </trans-unit>
+			<trans-unit id="controller.not_loggedin">
+				<source>Plugin "Calendarize frontend" is called on a page which is not restricted to frontend users.
+					Please make sure, that it can be called only, when a frontend user is logged in!
+				</source>
+			</trans-unit>
 			<trans-unit id="controller.please_login">
 				<source>Please log in to use this feature!</source>
 			</trans-unit>
-            <trans-unit id="controller.typoscript_missing">
-                <source>Please include the static TypoScript of ext:md_calendarize_frontend!</source>
-            </trans-unit>
-            <trans-unit id="controller.access_error">
-                <source>You are not allowed to edit this record.</source>
-            </trans-unit>
-            <trans-unit id="controller.created">
-                <source>The event was successfully created.</source>
-            </trans-unit>
-            <trans-unit id="controller.updated">
-                <source>The event was successfully updated.</source>
-            </trans-unit>
-            <trans-unit id="controller.deleted">
-                <source>The event was successfully deleted.</source>
-            </trans-unit>
+			<trans-unit id="controller.typoscript_missing">
+				<source>Please include the static TypoScript of ext:md_calendarize_frontend!</source>
+			</trans-unit>
+			<trans-unit id="controller.access_error">
+				<source>You are not allowed to edit this record.</source>
+			</trans-unit>
+			<trans-unit id="controller.created">
+				<source>The event was successfully created.</source>
+			</trans-unit>
+			<trans-unit id="controller.updated">
+				<source>The event was successfully updated.</source>
+			</trans-unit>
+			<trans-unit id="controller.deleted">
+				<source>The event was successfully deleted.</source>
+			</trans-unit>
 
-            <trans-unit id="error.code.1593464351">
-                <source>Please enter a title for the event.</source>
-            </trans-unit>
-            <trans-unit id="error.code.1593465345">
-                <source>Please enter a start date for the event.</source>
-            </trans-unit>
+			<trans-unit id="error.code.1593464351">
+				<source>Please enter a title for the event.</source>
+			</trans-unit>
+			<trans-unit id="error.code.1593465345">
+				<source>Please enter a start date for the event.</source>
+			</trans-unit>
 
-            <trans-unit id="pagination.overall" resname="pagination.overall">
-                <source>Page %s of %s</source>
-            </trans-unit>
-            <trans-unit id="pagination.first" resname="pagination.first">
-                <source>First</source>
-            </trans-unit>
-            <trans-unit id="pagination.last" resname="">
-                <source>Last</source>
-            </trans-unit>
-            <trans-unit id="pagination.previous" resname="pagination.previous">
-                <source>Previous</source>
-            </trans-unit>
-            <trans-unit id="pagination.next" resname="pagination.next">
-                <source>Next</source>
-            </trans-unit>
-        </body>
-    </file>
+			<trans-unit id="pagination.overall" resname="pagination.overall">
+				<source>Page %s of %s</source>
+			</trans-unit>
+			<trans-unit id="pagination.first" resname="pagination.first">
+				<source>First</source>
+			</trans-unit>
+			<trans-unit id="pagination.last" resname="">
+				<source>Last</source>
+			</trans-unit>
+			<trans-unit id="pagination.previous" resname="pagination.previous">
+				<source>Previous</source>
+			</trans-unit>
+			<trans-unit id="pagination.next" resname="pagination.next">
+				<source>Next</source>
+			</trans-unit>
+		</body>
+	</file>
 </xliff>

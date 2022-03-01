@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Mediadreams\MdCalendarizeFrontend\ViewHelpers;
 
 /*
@@ -128,8 +130,11 @@ class UtcTimeViewHelper extends AbstractViewHelper
      * @return string
      * @throws Exception
      */
-    public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext)
-    {
+    public static function renderStatic(
+        array $arguments,
+        \Closure $renderChildrenClosure,
+        RenderingContextInterface $renderingContext
+    ) {
         $format = $arguments['format'];
         $base = $arguments['base'] ?? GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('date', 'timestamp');
         if (is_string($base)) {

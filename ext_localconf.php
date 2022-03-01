@@ -9,11 +9,11 @@ call_user_func(
             'Mediadreams.MdCalendarizeFrontend',
             'Frontend',
             [
-                'Event' => 'list, new, create, edit, update, delete'
+                \Mediadreams\MdCalendarizeFrontend\Controller\EventController::class => 'list, new, create, edit, update, delete'
             ],
             // non-cacheable actions
             [
-                'Event' => 'list, new, create, edit, update, delete'
+                \Mediadreams\MdCalendarizeFrontend\Controller\EventController::class => 'list, new, create, edit, update, delete'
             ]
         );
 

@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Mediadreams\MdCalendarizeFrontend\Domain\Model;
 
 /***
@@ -13,8 +15,10 @@ namespace Mediadreams\MdCalendarizeFrontend\Domain\Model;
  ***/
 
 /**
- * Category
+ * Class Category
  * This is needed, because we use our own CategoryRepository
+ *
+ * @package Mediadreams\MdCalendarizeFrontend\Domain\Model
  */
 class Category extends \TYPO3\CMS\Extbase\Domain\Model\Category
 {

@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Mediadreams\MdCalendarizeFrontend\Validator;
 
 /***
@@ -14,22 +16,34 @@ namespace Mediadreams\MdCalendarizeFrontend\Validator;
 
 use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Validation\Error;
 use TYPO3\CMS\Extbase\Validation\Validator\AbstractValidator;
 
 /**
+ * Class EventValidator
+ *
  * Usage example for controller action:
  * @TYPO3\CMS\Extbase\Annotation\Validate("Mediadreams\MdCalendarizeFrontend\Validator\EventValidator", param="event")
+ *
+ * @package Mediadreams\MdCalendarizeFrontend\Validator
  */
 class EventValidator extends AbstractValidator
 {
     /**
      * Object Manager
      *
-     * @var \TYPO3\CMS\Extbase\Object\ObjectManager
-     * @TYPO3\CMS\Extbase\Annotation\Inject
+     * @var ObjectManager
      */
     protected $objectManager;
+
+    /**
+     * @param ObjectManager $objectManager
+     */
+    public function injectCategoryRepository(ObjectManager $objectManager)
+    {
+        $this->objectManager = $objectManager;
+    }
 
     /**
      * @param mixed $value

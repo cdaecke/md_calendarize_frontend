@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <xliff version="1.0">
-    <file source-language="en" datatype="plaintext" original="messages" date="2020-06-17T12:08:09Z" product-name="md_calendarize_frontend">
-        <header/>
-        <body>
-            <trans-unit id="md_user.description">
-                <source>Frontend user, who created this entry</source>
-            </trans-unit>
-        </body>
-    </file>
+	<file source-language="en" datatype="plaintext" original="messages" date="2020-06-17T12:08:09Z" product-name="md_calendarize_frontend">
+		<header/>
+		<body>
+			<trans-unit id="md_user.description">
+				<source>Frontend user, who created this entry</source>
+			</trans-unit>
+		</body>
+	</file>
 </xliff>

@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Mediadreams\MdCalendarizeFrontend\Controller;
 
 /***
@@ -14,7 +16,7 @@ namespace Mediadreams\MdCalendarizeFrontend\Controller;
 
 use GeorgRinger\NumberedPagination\NumberedPagination;
 use HDNET\Calendarize\Domain\Model\Index;
-use \HDNET\Calendarize\Domain\Repository\IndexRepository;
+use HDNET\Calendarize\Domain\Repository\IndexRepository;
 use HDNET\Calendarize\Service\Url\SlugService;
 use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
 use Mediadreams\MdCalendarizeFrontend\Domain\Repository\CategoryRepository;
@@ -31,7 +33,8 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
- * EventController
+ * Class EventBaseController
+ * @package Mediadreams\MdCalendarizeFrontend\Controller
  */
 class EventBaseController extends ActionController
 {
@@ -64,8 +67,8 @@ class EventBaseController extends ActionController
     public function __construct(
         EventRepository $eventRepository,
         IndexRepository $indexRepository,
-        SlugService $slugService)
-    {
+        SlugService $slugService
+    ) {
         $this->eventRepository = $eventRepository;
         $this->indexRepository = $indexRepository;
         $this->slugService = $slugService;
@@ -91,30 +94,32 @@ class EventBaseController extends ActionController
         // check if user is logged in
         if (!$this->feuserUid) {
             $this->addFlashMessage(
-                LocalizationUtility::translate('controller.not_loggedin','md_calendarize_frontend'),
+                LocalizationUtility::translate('controller.not_loggedin', 'md_calendarize_frontend'),
                 '',
                 AbstractMessage::ERROR
             );
 
             if ($this->actionMethodName !== 'listAction') {
                 $this->addFlashMessage(
-                    LocalizationUtility::translate('controller.please_login','md_calendarize_frontend'),
+                    LocalizationUtility::translate('controller.please_login', 'md_calendarize_frontend'),
                     '',
                     AbstractMessage::ERROR
                 );
 
                 $this->redirect('list');
             }
-        } else if (!isset($this->settings['dateFormat'])) { // check if TypoScript is loaded
-            $this->addFlashMessage(
-                LocalizationUtility::translate('controller.typoscript_missing','md_calendarize_frontend'),
-                '',
-                AbstractMessage::ERROR
-            );
+        } else {
+            if (!isset($this->settings['dateFormat'])) { // check if TypoScript is loaded
+                $this->addFlashMessage(
+                    LocalizationUtility::translate('controller.typoscript_missing', 'md_calendarize_frontend'),
+                    '',
+                    AbstractMessage::ERROR
+                );
+            }
         }
 
-        if ( strlen($this->settings['parentCategory']) > 0 ) {
-            $categoryRepository = $this->objectManager->get(CategoryRepository::class);
+        if (strlen($this->settings['parentCategory']) > 0) {
+            $categoryRepository = GeneralUtility::makeInstance(CategoryRepository::class);
             $categories = $categoryRepository->findByParent($this->settings['parentCategory']);
 
             // Assign categories to template
@@ -156,7 +161,7 @@ class EventBaseController extends ActionController
                     $propertyMappingConfiguration->forProperty($key)->setTypeConverterOption(
                         'TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter',
                         \TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED,
-                        TRUE
+                        true
                     );
 
                     // set configuration for date
@@ -190,7 +195,7 @@ class EventBaseController extends ActionController
                     $propertyMappingConfiguration
                         ->getConfigurationFor($key)
                         ->forProperty('startTime')
-                        ->setTypeConverter($this->objectManager->get(TimestampConverter::class))
+                        ->setTypeConverter(GeneralUtility::makeInstance(TimestampConverter::class))
                         ->setTypeConverterOption(
                             TimestampConverter::class,
                             TimestampConverter::CONFIGURATION_DATE_FORMAT,
@@ -200,17 +205,19 @@ class EventBaseController extends ActionController
                     $propertyMappingConfiguration
                         ->getConfigurationFor($key)
                         ->forProperty('endTime')
-                        ->setTypeConverter($this->objectManager->get(TimestampConverter::class))
+                        ->setTypeConverter(GeneralUtility::makeInstance(TimestampConverter::class))
                         ->setTypeConverterOption(
                             TimestampConverter::class,
                             TimestampConverter::CONFIGURATION_DATE_FORMAT,
                             $this->settings['timeFormat']
                         );
                 }
-            } else if ($args['action'] === 'update' && isset($args['event'])) {
-                // no "calendarize" item was provided -> remove all
-                $args['event']['calendarize'] = null;
-                $this->request->setArguments($args);
+            } else {
+                if ($args['action'] === 'update' && isset($args['event'])) {
+                    // no "calendarize" item was provided -> remove all
+                    $args['event']['calendarize'] = null;
+                    $this->request->setArguments($args);
+                }
             }
         }
 
@@ -230,7 +237,7 @@ class EventBaseController extends ActionController
     {
         if ($record->getMdUser()->getUid() != $this->feuserUid) {
             $this->addFlashMessage(
-                LocalizationUtility::translate('controller.access_error','md_calendarize_frontend'),
+                LocalizationUtility::translate('controller.access_error', 'md_calendarize_frontend'),
                 '',
                 AbstractMessage::ERROR
             );
@@ -268,7 +275,7 @@ class EventBaseController extends ActionController
         // Save items
         foreach ($event->getCalendarize() as $key => $items) {
             /** @var $indexObject \HDNET\Calendarize\Domain\Model\Index */
-            $indexObject = $this->objectManager->get(Index::class);
+            $indexObject = GeneralUtility::makeInstance(Index::class);
             $indexObject->setForeignUid($event->getUid());
             $indexObject->setUniqueRegisterKey('Event');
             $indexObject->setForeignTable('tx_calendarize_domain_model_event');
@@ -281,24 +288,24 @@ class EventBaseController extends ActionController
             $slug = $this->slugService->makeSlugUnique($itemsWithSlug[$key]);
             $indexObject->setSlug($slug);
 
-            if ( !empty($items->getEndDate()) ) {
+            if (!empty($items->getEndDate())) {
                 $indexObject->setEndDate($items->getEndDate());
             } else {
                 $indexObject->setEndDate($items->getStartDate());
             }
 
-            if ( !empty($items->getStartTime()) ) {
+            if (!empty($items->getStartTime())) {
                 $indexObject->setStartTime($items->getStartTime());
             }
 
-            if ( !empty($items->getEndTime()) ) {
+            if (!empty($items->getEndTime())) {
                 $indexObject->setEndTime($items->getEndTime());
             }
 
             $this->indexRepository->add($indexObject);
 
             // persist data in order to get correct slug for next item
-            $persistenceManager = $this->objectManager->get(PersistenceManager::class);
+            $persistenceManager = GeneralUtility::makeInstance(PersistenceManager::class);
             $persistenceManager->persistAll();
         }
     }
@@ -318,7 +325,8 @@ class EventBaseController extends ActionController
         return $queryBuilder
             ->delete('tx_calendarize_domain_model_index')
             ->where(
-                $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($eventUid, \PDO::PARAM_INT))
+                $queryBuilder->expr()->eq('foreign_uid',
+                    $queryBuilder->createNamedParameter($eventUid, \PDO::PARAM_INT))
             )
             ->execute();
     }

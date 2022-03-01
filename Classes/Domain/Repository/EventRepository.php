@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Mediadreams\MdCalendarizeFrontend\Domain\Repository;
 
 /***
@@ -12,6 +14,10 @@ namespace Mediadreams\MdCalendarizeFrontend\Domain\Repository;
  *
  ***/
 
+/**
+ * Class EventRepository
+ * @package Mediadreams\MdCalendarizeFrontend\Domain\Repository
+ */
 class EventRepository extends \HDNET\Calendarize\Domain\Repository\EventRepository
 {
     /**

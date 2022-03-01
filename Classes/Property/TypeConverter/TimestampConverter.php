@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Mediadreams\MdCalendarizeFrontend\Property\TypeConverter;
 
 /***
@@ -16,6 +18,7 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\AbstractTypeConverter;
 
 /**
  * Class TimestampConverter
+ * @package Mediadreams\MdCalendarizeFrontend\Property\TypeConverter
  */
 class TimestampConverter extends AbstractTypeConverter
 {
@@ -38,11 +41,10 @@ class TimestampConverter extends AbstractTypeConverter
         $source,
         $targetType,
         array $convertedChildProperties = array(),
-        \TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface $configuration = NULL
-    )
-    {
+        \TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface $configuration = null
+    ) {
         if (empty($source)) {
-            return NULL;
+            return null;
         }
 
         $dateFormat = $configuration->getConfigurationValue(
@@ -52,7 +54,8 @@ class TimestampConverter extends AbstractTypeConverter
 
         $dateObj = \DateTime::createFromFormat($dateFormat, $source);
         if ($dateObj === false || $dateObj->format($dateFormat) != $source) {
-            return new \TYPO3\CMS\Extbase\Validation\Error('The time "%s" was not recognized (for format "%s").', 1307719788, [$source, $dateFormat]);
+            return new \TYPO3\CMS\Extbase\Validation\Error('The time "%s" was not recognized (for format "%s").',
+                1307719788, [$source, $dateFormat]);
         }
 
         $date = new \DateTime("1970-01-01 $source", new \DateTimeZone('UTC'));

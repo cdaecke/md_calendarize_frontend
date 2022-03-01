@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Mediadreams\MdCalendarizeFrontend\Controller;
 
@@ -20,7 +21,8 @@ use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
- * EventController
+ * Class EventController
+ * @package Mediadreams\MdCalendarizeFrontend\Controller
  */
 class EventController extends EventBaseController
 {
@@ -69,7 +71,7 @@ class EventController extends EventBaseController
         $this->eventRepository->add($event);
 
         // persist data in order to get insert id
-        $persistenceManager = $this->objectManager->get(PersistenceManager::class);
+        $persistenceManager = GeneralUtility::makeInstance(PersistenceManager::class);
         $persistenceManager->persistAll();
 
         /** @var SlugHelper $slugHelper */

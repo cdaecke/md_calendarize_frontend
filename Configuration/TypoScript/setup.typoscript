@@ -1,40 +1,42 @@
-
 plugin.tx_mdcalendarizefrontend_frontend {
-    view {
-        templateRootPaths.0 = EXT:{extension.shortExtensionKey}/Resources/Private/Templates/
-        templateRootPaths.1 = {$plugin.tx_mdcalendarizefrontend_frontend.view.templateRootPath}
-        partialRootPaths.0 = EXT:md_calendarize_frontend/Resources/Private/Partials/
-        partialRootPaths.1 = {$plugin.tx_mdcalendarizefrontend_frontend.view.partialRootPath}
-        layoutRootPaths.0 = EXT:tx_mdcalendarizefrontend/Resources/Private/Layouts/
-        layoutRootPaths.1 = {$plugin.tx_mdcalendarizefrontend_frontend.view.layoutRootPath}
-    }
-    persistence {
-        #storagePid = {$plugin.tx_mdcalendarizefrontend_frontend.persistence.storagePid}
-        #recursive = 1
-    }
-    features {
-        #skipDefaultArguments = 1
-        # if set to 1, the enable fields are ignored in BE context
-        ignoreAllEnableFieldsInBe = 0
-        # Should be on by default, but can be disabled if all action in the plugin are uncached
-        requireCHashArgumentForActionArguments = 1
-    }
-    mvc {
-        #callDefaultActionIfActionCantBeResolved = 1
-    }
+  view {
+    templateRootPaths.0 = EXT:{extension.shortExtensionKey}/Resources/Private/Templates/
+    templateRootPaths.1 = {$plugin.tx_mdcalendarizefrontend_frontend.view.templateRootPath}
+    partialRootPaths.0 = EXT:md_calendarize_frontend/Resources/Private/Partials/
+    partialRootPaths.1 = {$plugin.tx_mdcalendarizefrontend_frontend.view.partialRootPath}
+    layoutRootPaths.0 = EXT:tx_mdcalendarizefrontend/Resources/Private/Layouts/
+    layoutRootPaths.1 = {$plugin.tx_mdcalendarizefrontend_frontend.view.layoutRootPath}
+  }
 
-    settings {
-        dateFormat = d.m.Y
-        dateFormatPlaceholder = DD.MM.YYYY
-        timeFormat = H:i
-        timeFormatPlaceholder = HH:MM
-        parentCategory =
+  persistence {
+    #storagePid = {$plugin.tx_mdcalendarizefrontend_frontend.persistence.storagePid}
+    #recursive = 1
+  }
 
-        paginate {
-            itemsPerPage = 10
-            insertAbove = 0
-            insertBelow = 1
-            maximumNumberOfLinks = 6
-        }
+  features {
+    #skipDefaultArguments = 1
+    # if set to 1, the enable fields are ignored in BE context
+    ignoreAllEnableFieldsInBe = 0
+    # Should be on by default, but can be disabled if all action in the plugin are uncached
+    requireCHashArgumentForActionArguments = 1
+  }
+
+  mvc {
+    #callDefaultActionIfActionCantBeResolved = 1
+  }
+
+  settings {
+    dateFormat = d.m.Y
+    dateFormatPlaceholder = DD.MM.YYYY
+    timeFormat = H:i
+    timeFormatPlaceholder = HH:MM
+    parentCategory =
+
+    paginate {
+      itemsPerPage = 10
+      insertAbove = 0
+      insertBelow = 1
+      maximumNumberOfLinks = 6
     }
+  }
 }

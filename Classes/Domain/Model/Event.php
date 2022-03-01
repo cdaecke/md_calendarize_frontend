@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Mediadreams\MdCalendarizeFrontend\Domain\Model;
 
 /***
@@ -13,7 +15,8 @@ namespace Mediadreams\MdCalendarizeFrontend\Domain\Model;
  ***/
 
 /**
- * Event
+ * Class Event
+ * @package Mediadreams\MdCalendarizeFrontend\Domain\Model
  */
 class Event extends \HDNET\Calendarize\Domain\Model\Event
 {
