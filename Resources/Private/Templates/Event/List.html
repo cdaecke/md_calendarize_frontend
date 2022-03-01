@@ -20,7 +20,7 @@
                     </div>
                     <div class="col-sm-4 text-right {f:if(condition:'{i.isEven}',then:'even',else:'odd')}">
                         <f:link.action action="edit" arguments="{event : eventItem}" class="mr-3" title="{f:translate(key: 'edit')}: {eventItem.title}"><i class="fas fa-pencil-alt"></i> <f:translate key="edit" /></f:link.action>
-                        <f:link.action action="delete" arguments="{event : eventItem}" class="text-danger delete" additionalAttributes="{data-toggle: 'modal', data-target: '#deleteModal'}" title="{f:translate(key: 'delete')}: {eventItem.title}"><i class="fas fa-trash-alt"></i> <f:translate key="delete" /></f:link.action>
+                        <f:link.action action="delete" arguments="{event : eventItem}" class="text-danger delete" additionalAttributes="{data-toggle: 'modal', data-target: '#deleteModal', data-bs-toggle: 'modal', data-bs-target: '#deleteModal'}" title="{f:translate(key: 'delete')}: {eventItem.title}"><i class="fas fa-trash-alt"></i> <f:translate key="delete" /></f:link.action>
                     </div>
                 </f:for>
             </div>
@@ -44,15 +44,13 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="deleteModalLabel"><f:translate key="modal.title" /></h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="btn-close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <f:translate key="modal.text" />
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal"><f:translate key="modal.close" /></button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal"><f:translate key="modal.close" /></button>
                     <a href="#" class="btn btn-danger" id="delLink"><f:translate key="modal.delete" /></a>
                 </div>
             </div>
@@ -60,13 +58,15 @@
     </div>
 
     <script type="text/javascript">
-        (function($){
-            $(document).ready(function() {
-                $('.delete').on('click', function() {
-                    $('#delLink').attr('href', $(this).attr('href'));
+        addEventListener('load', (event) => {
+            (function($){
+                $(document).ready(function() {
+                    $('.delete').on('click', function() {
+                        $('#delLink').attr('href', $(this).attr('href'));
+                    });
                 });
-            });
-        })(jQuery);
+            })(jQuery);
+        });
     </script>
 
 </f:section>

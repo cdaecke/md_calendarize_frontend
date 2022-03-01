@@ -100,61 +100,63 @@
 </div>
 
 <script>
-    jQuery(document).ready(function ($) {
-        var formElementCount = <f:format.raw>{elementCount + 1}</f:format.raw>,
-            source = $('#itemContainer_0'),
-            cloneMaster = source.clone();
+    addEventListener('load', (event) => {
+        jQuery(document).ready(function ($) {
+            var formElementCount = <f:format.raw>{elementCount + 1}</f:format.raw>,
+                source = $('#itemContainer_0'),
+                cloneMaster = source.clone();
 
-        $('#addItem').click(function() {
-            let clone = cloneMaster.clone();
+            $('#addItem').click(function() {
+                let clone = cloneMaster.clone();
 
-            // increment legend
-            clone.find('legend span').text(formElementCount + 1);
+                // increment legend
+                clone.find('legend span').text(formElementCount + 1);
 
-            // increment for-attribute of label
-            clone.find('label').attr('for', function(i, val) {
-                return val + formElementCount;
+                // increment for-attribute of label
+                clone.find('label').attr('for', function(i, val) {
+                    return val + formElementCount;
+                });
+
+                // increment ID and name of input field
+                clone.find(':input').attr('id', function(i, val) {
+                    return val + formElementCount;
+                }).attr('name', function(i, val) {
+                    return val.replace('[0]','[' + formElementCount + ']');
+                });
+
+                // reset some values
+                clone.find(':input:not([type=hidden])').val('');
+                clone.find(':checkbox').prop('checked', false);
+                clone.find('.d-none').removeClass('d-none')
+
+                clone.insertBefore( $(this).parent() );
+                initItem();
+
+                formElementCount++;
             });
 
-            // increment ID and name of input field
-            clone.find(':input').attr('id', function(i, val) {
-                return val + formElementCount;
-            }).attr('name', function(i, val) {
-                return val.replace('[0]','[' + formElementCount + ']');
-            });
+            var initItem = function() {
+                $('.delItem').click(function() {
+                    let item = $(this).attr('data-item');
+                    if (item) {
+                        $("input[name='tx_mdcalendarizefrontend_frontend\\[event\\]\\[calendarize\\]\\[" + item + "\\]\\[__identity\\]']").remove();
+                    }
+                    $(this).closest('fieldset').remove();
+                });
 
-            // reset some values
-            clone.find(':input:not([type=hidden])').val('');
-            clone.find(':checkbox').prop('checked', false);
-            clone.find('.d-none').removeClass('d-none')
+                $('.openEndTime').on('change', function() {
+                    let endTime = $(this).closest('fieldset').find('.endTime');
+                    endTime.toggleClass('d-none', $(this).is(':checked'));
+                });
 
-            clone.insertBefore( $(this).parent() );
+                $('.allDay').on('change', function() {
+                    let times = $(this).closest('fieldset').find('.times');
+                    times.toggleClass('d-none', $(this).is(':checked'));
+                });
+            }
+
             initItem();
-
-            formElementCount++;
         });
-
-        var initItem = function() {
-            $('.delItem').click(function() {
-                let item = $(this).attr('data-item');
-                if (item) {
-                    $("input[name='tx_mdcalendarizefrontend_frontend\\[event\\]\\[calendarize\\]\\[" + item + "\\]\\[__identity\\]']").remove();
-                }
-                $(this).closest('fieldset').remove();
-            });
-
-            $('.openEndTime').on('change', function() {
-                let endTime = $(this).closest('fieldset').find('.endTime');
-                endTime.toggleClass('d-none', $(this).is(':checked'));
-            });
-
-            $('.allDay').on('change', function() {
-                let times = $(this).closest('fieldset').find('.times');
-                times.toggleClass('d-none', $(this).is(':checked'));
-            });
-        }
-
-        initItem();
     });
 </script>
 
