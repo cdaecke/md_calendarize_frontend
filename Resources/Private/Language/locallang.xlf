@@ -36,6 +36,14 @@
 				<source>Edit event</source>
 			</trans-unit>
 
+			<trans-unit id="access_denied">
+				<source>Access denied</source>
+				<target>Zugriff verweigert</target>
+			</trans-unit>
+			<trans-unit id="please_login">
+				<source>Please login as a frontend user in order to use this functionality.</source>
+			</trans-unit>
+
 			<trans-unit id="modal.title">
 				<source>Delete entry</source>
 			</trans-unit>
@@ -114,14 +122,6 @@
 				<source>- Delete date</source>
 			</trans-unit>
 
-			<trans-unit id="controller.not_loggedin">
-				<source>Plugin "Calendarize frontend" is called on a page which is not restricted to frontend users.
-					Please make sure, that it can be called only, when a frontend user is logged in!
-				</source>
-			</trans-unit>
-			<trans-unit id="controller.please_login">
-				<source>Please log in to use this feature!</source>
-			</trans-unit>
 			<trans-unit id="controller.typoscript_missing">
 				<source>Please include the static TypoScript of ext:md_calendarize_frontend!</source>
 			</trans-unit>

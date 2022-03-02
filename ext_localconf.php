@@ -9,7 +9,7 @@ call_user_func(
             'Mediadreams.MdCalendarizeFrontend',
             'Frontend',
             [
-                \Mediadreams\MdCalendarizeFrontend\Controller\EventController::class => 'list, new, create, edit, update, delete'
+                \Mediadreams\MdCalendarizeFrontend\Controller\EventController::class => 'list, new, create, edit, update, delete, accessDenied'
             ],
             // non-cacheable actions
             [
@@ -18,7 +18,7 @@ call_user_func(
         );
 
         $iconRegistry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Imaging\IconRegistry::class);
-        
+
         $iconRegistry->registerIcon(
             'md_calendarize_frontend-plugin-frontend',
             \TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider::class,

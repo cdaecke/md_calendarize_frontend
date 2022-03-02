@@ -26,6 +26,15 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
  */
 class EventController extends EventBaseController
 {
+    /**
+     * action accessDenied
+     *
+     * @return void
+     */
+    public function accessDeniedAction()
+    {
+
+    }
 
     /**
      * action list

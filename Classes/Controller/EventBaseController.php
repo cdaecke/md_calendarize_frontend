@@ -90,40 +90,22 @@ class EventBaseController extends ActionController
      */
     protected function initializeView(\TYPO3\CMS\Extbase\Mvc\View\ViewInterface $view)
     {
-        // check if user is logged in
-        if (!$this->feuserUid) {
+        // check if TypoScript is loaded
+        if (!isset($this->settings['dateFormat'])) {
             $this->addFlashMessage(
-                LocalizationUtility::translate('controller.not_loggedin', 'md_calendarize_frontend'),
+                LocalizationUtility::translate('controller.typoscript_missing', 'md_calendarize_frontend'),
                 '',
                 AbstractMessage::ERROR
             );
+        }
 
-            if ($this->actionMethodName !== 'listAction') {
-                $this->addFlashMessage(
-                    LocalizationUtility::translate('controller.please_login', 'md_calendarize_frontend'),
-                    '',
-                    AbstractMessage::ERROR
-                );
+        $view->assignMultiple([
+            'feUser' => $this->feUser,
+            'contentObjectData' => $this->configurationManager->getContentObject()->data
+        ]);
 
-                $this->redirect('list');
-            }
-        } else {
-            if (!isset($this->settings['dateFormat'])) { // check if TypoScript is loaded
-                $this->addFlashMessage(
-                    LocalizationUtility::translate('controller.typoscript_missing', 'md_calendarize_frontend'),
-                    '',
-                    AbstractMessage::ERROR
-                );
-            }
-
-            $view->assignMultiple([
-                'feUser' => $this->feUser,
-                'contentObjectData' => $this->configurationManager->getContentObject()->data
-            ]);
-
-            if (is_object($GLOBALS['TSFE'])) {
-                $view->assign('pageData', $GLOBALS['TSFE']->page);
-            }
+        if (is_object($GLOBALS['TSFE'])) {
+            $view->assign('pageData', $GLOBALS['TSFE']->page);
         }
 
         if (strlen($this->settings['parentCategory']) > 0) {
@@ -145,6 +127,14 @@ class EventBaseController extends ActionController
     public function initializeAction()
     {
         parent::initializeAction();
+
+        // get fe_user id
+        $this->feUser = $GLOBALS['TSFE']->fe_user->user;
+        $this->feuserUid = (int)$this->feUser['uid'];
+
+        if (!$this->feUser && $this->actionMethodName != 'accessDeniedAction') {
+            $this->redirect('accessDenied');
+        }
 
         if (isset($this->arguments['event'])) {
             $args = $this->request->getArguments();
@@ -228,10 +218,6 @@ class EventBaseController extends ActionController
                 }
             }
         }
-
-        // get fe_user id
-        $this->feUser = $GLOBALS['TSFE']->fe_user->user;
-        $this->feuserUid = (int)$this->feUser['uid'];
     }
 
     /**

@@ -46,6 +46,14 @@
 				<target>Eintrag bearbeiten</target>
 			</trans-unit>
 
+			<trans-unit id="access_denied">
+				<source>Access denied</source>
+			</trans-unit>
+			<trans-unit id="please_login">
+				<source>Please login as a frontend user in order to use this functionality.</source>
+				<target>Bitte loggen Sie sich als Frontend user ein, um diese Funktionalität zu nutzen.</target>
+			</trans-unit>
+
 			<trans-unit id="modal.title">
 				<source>Delete entry</source>
 				<target>Eintrag löschen</target>
@@ -149,19 +157,6 @@
 				<target>- Datum löschen</target>
 			</trans-unit>
 
-			<trans-unit id="controller.not_loggedin">
-				<source>Plugin "Calendarize frontend" is called on a page which is not restricted to frontend users.
-					Please make sure, that it can be called only, when a frontend user is logged in!
-				</source>
-				<target>Das Plugin "Calendarize frontend" ist auf einer Seite eingebunden, die nicht für Frontend user
-					eingeschränkt ist. Bitte stellen Sie sicher, dass das Plugin nur aufgerufen werden kann, wenn sich
-					ein Frontend user authentifiziert hat!
-				</target>
-			</trans-unit>
-			<trans-unit id="controller.please_login">
-				<source>Please log in to use this feature!</source>
-				<target>Bitte einloggen, um diese Funktion zu nutzen!</target>
-			</trans-unit>
 			<trans-unit id="controller.typoscript_missing">
 				<source>Please include the static TypoScript of ext:md_calendarize_frontend!</source>
 				<target>Bitte binden Sie das statische TypoScript der Extension md_calendarize_frontend ein!</target>
