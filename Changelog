@@ -1,3 +1,16 @@
+Version 2.0.0 (2022-03-02)
+    [FEATURE] TYPO3 11 compatibility
+    [FEATURE] Compatibility with ext:calendarize v12
+    [FEATURE] PageData, ContentObjectData and feUserData are now added to view
+    [TASK] Compatibility with Bootstrap 4 and 5.
+
+    [!!!]BREAKING:
+    With this release, the `List.html`-Template was changed, in order to remove `f:widget.paginate`.
+    As new paginator is `ext:numbered_pagination` in place.
+
+    All changes
+    https://github.com/cdaecke/md_calendarize_frontend/compare/1.0.4...2.0.0
+
 Version 1.0.4 (2021-10-24)
     [BUGFIX] add slug when creating an event (slug was added in ext:calendarize v10)
 
