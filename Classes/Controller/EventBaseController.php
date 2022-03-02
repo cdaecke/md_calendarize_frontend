@@ -22,7 +22,6 @@ use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
 use Mediadreams\MdCalendarizeFrontend\Domain\Repository\CategoryRepository;
 use Mediadreams\MdCalendarizeFrontend\Domain\Repository\EventRepository;
 use Mediadreams\MdCalendarizeFrontend\Property\TypeConverter\TimestampConverter;
-use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -115,6 +114,15 @@ class EventBaseController extends ActionController
                     '',
                     AbstractMessage::ERROR
                 );
+            }
+
+            $view->assignMultiple([
+                'feUser' => $this->feUser,
+                'contentObjectData' => $this->configurationManager->getContentObject()->data
+            ]);
+
+            if (is_object($GLOBALS['TSFE'])) {
+                $view->assign('pageData', $GLOBALS['TSFE']->page);
             }
         }
 
@@ -222,8 +230,8 @@ class EventBaseController extends ActionController
         }
 
         // get fe_user id
-        $context = GeneralUtility::makeInstance(Context::class);
-        $this->feuserUid = (int)$context->getPropertyFromAspect('frontend.user', 'id');
+        $this->feUser = $GLOBALS['TSFE']->fe_user->user;
+        $this->feuserUid = (int)$this->feUser['uid'];
     }
 
     /**
