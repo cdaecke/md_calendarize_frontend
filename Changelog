@@ -1,3 +1,9 @@
+Version 2.0.1 (2022-03-14)
+    [BUGFIX] add `Configuration/Services.yaml` to configure dependency injection
+
+    All changes
+    https://github.com/cdaecke/md_calendarize_frontend/compare/2.0.0...2.0.1
+
 Version 2.0.0 (2022-03-02)
     [FEATURE] TYPO3 11 compatibility
     [FEATURE] Compatibility with ext:calendarize v12
