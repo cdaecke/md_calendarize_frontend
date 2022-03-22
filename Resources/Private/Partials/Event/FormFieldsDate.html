@@ -125,7 +125,7 @@
                 });
 
                 // reset some values
-                clone.find(':input:not([type=hidden])').val('');
+                clone.find(':input:not([type=hidden],[type=checkbox])').val('');
                 clone.find(':checkbox').prop('checked', false);
                 clone.find('.d-none').removeClass('d-none')
 
