@@ -162,6 +162,16 @@ class EventBaseController extends ActionController
                         true
                     );
 
+                    if ($items['startTime'] == '') {
+                        $args['event']['calendarize'][$key]['startTime'] = 0;
+                    }
+
+                    if ($items['endTime'] == '') {
+                        $args['event']['calendarize'][$key]['endTime'] = 0;
+                    }
+
+                    $this->request->setArguments($args);
+
                     // set configuration for date
                     $propertyMappingConfiguration
                         ->getConfigurationFor($key)
@@ -190,25 +200,29 @@ class EventBaseController extends ActionController
                             $this->settings['dateFormat']
                         );
 
-                    $propertyMappingConfiguration
-                        ->getConfigurationFor($key)
-                        ->forProperty('startTime')
-                        ->setTypeConverter(GeneralUtility::makeInstance(TimestampConverter::class))
-                        ->setTypeConverterOption(
-                            TimestampConverter::class,
-                            TimestampConverter::CONFIGURATION_DATE_FORMAT,
-                            $this->settings['timeFormat']
-                        );
+                    if ($items['startTime'] != '') {
+                        $propertyMappingConfiguration
+                            ->getConfigurationFor($key)
+                            ->forProperty('startTime')
+                            ->setTypeConverter(GeneralUtility::makeInstance(TimestampConverter::class))
+                            ->setTypeConverterOption(
+                                TimestampConverter::class,
+                                TimestampConverter::CONFIGURATION_DATE_FORMAT,
+                                $this->settings['timeFormat']
+                            );
+                    }
 
-                    $propertyMappingConfiguration
-                        ->getConfigurationFor($key)
-                        ->forProperty('endTime')
-                        ->setTypeConverter(GeneralUtility::makeInstance(TimestampConverter::class))
-                        ->setTypeConverterOption(
-                            TimestampConverter::class,
-                            TimestampConverter::CONFIGURATION_DATE_FORMAT,
-                            $this->settings['timeFormat']
-                        );
+                    if ($items['endTime'] != '') {
+                        $propertyMappingConfiguration
+                            ->getConfigurationFor($key)
+                            ->forProperty('endTime')
+                            ->setTypeConverter(GeneralUtility::makeInstance(TimestampConverter::class))
+                            ->setTypeConverterOption(
+                                TimestampConverter::class,
+                                TimestampConverter::CONFIGURATION_DATE_FORMAT,
+                                $this->settings['timeFormat']
+                            );
+                    }
                 }
             } else {
                 if ($args['action'] === 'update' && isset($args['event'])) {
