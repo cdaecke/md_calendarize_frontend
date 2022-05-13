@@ -1,3 +1,10 @@
+Version 2.0.2 (2022-05-13)
+    [BUGFIX] in ext:calendarize v12.1.0 the `startTime` and `endTime` of model `Configuration` was casted to `int`, so the was adapted here as well
+    [BUGFIX] do not reset value of checkbox in added date field
+
+    All changes
+    https://github.com/cdaecke/md_calendarize_frontend/compare/2.0.1...2.0.2
+
 Version 2.0.1 (2022-03-14)
     [BUGFIX] add `Configuration/Services.yaml` to configure dependency injection
 
