@@ -1,5 +1,5 @@
 <?php
-defined('TYPO3_MODE') || die();
+defined('TYPO3') || die();
 
 $tmp_md_calendarize_frontend_columns = [
 

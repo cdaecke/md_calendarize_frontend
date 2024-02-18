@@ -1,12 +1,11 @@
 <?php
-defined('TYPO3_MODE') || die('Access denied.');
+defined('TYPO3') || die('Access denied.');
 
 call_user_func(
     function()
     {
-
         \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
-            'Mediadreams.MdCalendarizeFrontend',
+            'MdCalendarizeFrontend',
             'Frontend',
             [
                 \Mediadreams\MdCalendarizeFrontend\Controller\EventController::class => 'list, new, create, edit, update, delete, accessDenied'
@@ -17,21 +16,11 @@ call_user_func(
             ]
         );
 
-        $iconRegistry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Imaging\IconRegistry::class);
-
-        $iconRegistry->registerIcon(
-            'md_calendarize_frontend-plugin-frontend',
-            \TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider::class,
-            ['source' => 'EXT:md_calendarize_frontend/Resources/Public/Icons/user_plugin_frontend.svg']
-        );
-
-        // overwrite Calendarize event model with MdCalendarizeFrontend event model
-        // this is needed in order have new properties available everywhere
-        \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\Container\Container::class)
-            ->registerImplementation(
-                \HDNET\Calendarize\Domain\Model\Event::class,
-                \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event::class
-            );
-
+        /**
+         * Extend ext:calendarize model
+         */
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\HDNET\Calendarize\Domain\Model\Event::class] = [
+            'className' => \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event::class
+        ];
     }
 );

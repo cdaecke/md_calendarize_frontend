@@ -23,7 +23,7 @@ use Mediadreams\MdCalendarizeFrontend\Domain\Repository\CategoryRepository;
 use Mediadreams\MdCalendarizeFrontend\Domain\Repository\EventRepository;
 use Mediadreams\MdCalendarizeFrontend\Property\TypeConverter\TimestampConverter;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Messaging\AbstractMessage;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Pagination\QueryResultPaginator;
@@ -37,6 +37,15 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
  */
 class EventBaseController extends ActionController
 {
+    /**
+     * @var array FeUser array
+     */
+    protected $feUser = [];
+
+    /**
+     * @var int FeUser Uid
+     */
+    protected $feuserUid = 0;
     /**
      * eventRepository
      *
@@ -85,27 +94,25 @@ class EventBaseController extends ActionController
 
     /**
      * Initializes the view and pass additional data to template
-     *
-     * @param \TYPO3\CMS\Extbase\Mvc\View\ViewInterface $view The view to be initialized
      */
-    protected function initializeView(\TYPO3\CMS\Extbase\Mvc\View\ViewInterface $view)
+    protected function initializeView(): void
     {
         // check if TypoScript is loaded
         if (!isset($this->settings['dateFormat'])) {
             $this->addFlashMessage(
                 LocalizationUtility::translate('controller.typoscript_missing', 'md_calendarize_frontend'),
                 '',
-                AbstractMessage::ERROR
+                ContextualFeedbackSeverity::ERROR
             );
         }
 
-        $view->assignMultiple([
+        $this->view->assignMultiple([
             'feUser' => $this->feUser,
             'contentObjectData' => $this->configurationManager->getContentObject()->data
         ]);
 
         if (is_object($GLOBALS['TSFE'])) {
-            $view->assign('pageData', $GLOBALS['TSFE']->page);
+            $this->view->assign('pageData', $GLOBALS['TSFE']->page);
         }
 
         if (strlen($this->settings['parentCategory']) > 0) {
@@ -113,10 +120,8 @@ class EventBaseController extends ActionController
             $categories = $categoryRepository->findByParent($this->settings['parentCategory']);
 
             // Assign categories to template
-            $view->assign('categories', $categories);
+            $this->view->assign('categories', $categories);
         }
-
-        parent::initializeView($view);
     }
 
     /**
@@ -129,12 +134,8 @@ class EventBaseController extends ActionController
         parent::initializeAction();
 
         // get fe_user id
-        $this->feUser = $GLOBALS['TSFE']->fe_user->user;
-        $this->feuserUid = (int)$this->feUser['uid'];
-
-        if (!$this->feUser && $this->actionMethodName != 'accessDeniedAction') {
-            $this->redirect('accessDenied');
-        }
+        $this->feUser = $GLOBALS['TSFE']->fe_user->user ?? [];
+        $this->feuserUid = isset($this->feUser['uid'])? (int)$this->feUser['uid']:0;
 
         if (isset($this->arguments['event'])) {
             $args = $this->request->getArguments();
@@ -170,7 +171,7 @@ class EventBaseController extends ActionController
                         $args['event']['calendarize'][$key]['endTime'] = 0;
                     }
 
-                    $this->request->setArguments($args);
+                    $this->request->getAttributes()['extbase']->setArguments($args);
 
                     // set configuration for date
                     $propertyMappingConfiguration
@@ -247,7 +248,7 @@ class EventBaseController extends ActionController
             $this->addFlashMessage(
                 LocalizationUtility::translate('controller.access_error', 'md_calendarize_frontend'),
                 '',
-                AbstractMessage::ERROR
+                ContextualFeedbackSeverity::ERROR
             );
 
             $this->redirect('list');

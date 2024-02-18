@@ -16,6 +16,8 @@ namespace Mediadreams\MdCalendarizeFrontend\Controller;
 
 use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
 use Mediadreams\MdCalendarizeFrontend\Helper\SlugHelper;
+use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
@@ -29,20 +31,24 @@ class EventController extends EventBaseController
     /**
      * action accessDenied
      *
-     * @return void
+     * @return ResponseInterface
      */
-    public function accessDeniedAction()
+    public function accessDeniedAction(): ResponseInterface
     {
-
+        return $this->htmlResponse();
     }
 
     /**
      * action list
      *
-     * @return void
+     * @return ResponseInterface
      */
-    public function listAction()
+    public function listAction(): ResponseInterface
     {
+        if ($this->feuserUid === 0) {
+            return $this->redirect('accessDenied');
+        }
+
         if ($this->feuserUid > 0) {
             $events = $this->eventRepository->findByMdUser($this->feuserUid);
 
@@ -54,16 +60,22 @@ class EventController extends EventBaseController
 
             $this->view->assign('events', $events);
         }
+
+        return $this->htmlResponse();
     }
 
     /**
      * action new
      *
-     * @return void
+     * @return ResponseInterface
      */
-    public function newAction()
+    public function newAction(): ResponseInterface
     {
+        if ($this->feuserUid === 0) {
+            return $this->redirect('accessDenied');
+        }
 
+        return $this->htmlResponse();
     }
 
     /**
@@ -95,10 +107,10 @@ class EventController extends EventBaseController
         $this->addFlashMessage(
             LocalizationUtility::translate('controller.created', 'md_calendarize_frontend'),
             '',
-            \TYPO3\CMS\Core\Messaging\AbstractMessage::OK
+            ContextualFeedbackSeverity::OK
         );
 
-        $this->redirect('list');
+        return $this->redirect('list');
     }
 
     /**
@@ -106,12 +118,14 @@ class EventController extends EventBaseController
      *
      * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $event
      * @TYPO3\CMS\Extbase\Annotation\IgnoreValidation("event")
-     * @return void
+     * @return ResponseInterface
      */
-    public function editAction(Event $event)
+    public function editAction(Event $event): ResponseInterface
     {
         $this->checkAccess($event);
         $this->view->assign('event', $event);
+
+        return $this->htmlResponse();
     }
 
     /**
@@ -146,10 +160,10 @@ class EventController extends EventBaseController
         $this->addFlashMessage(
             LocalizationUtility::translate('controller.updated', 'md_calendarize_frontend'),
             '',
-            \TYPO3\CMS\Core\Messaging\AbstractMessage::OK
+            ContextualFeedbackSeverity::OK
         );
 
-        $this->redirect('list');
+        return $this->redirect('list');
     }
 
     /**
@@ -171,10 +185,10 @@ class EventController extends EventBaseController
         $this->addFlashMessage(
             LocalizationUtility::translate('controller.deleted', 'md_calendarize_frontend'),
             '',
-            \TYPO3\CMS\Core\Messaging\AbstractMessage::OK
+            ContextualFeedbackSeverity::OK
         );
 
-        $this->redirect('list');
+        return $this->redirect('list');
     }
 
 }

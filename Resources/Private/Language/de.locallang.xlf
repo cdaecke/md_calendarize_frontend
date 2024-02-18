@@ -3,207 +3,213 @@
 	<file source-language="en" target-language="de" datatype="plaintext" original="messages" date="2020-07-01T11:32:19Z" product-name="md_calendarize_frontend">
 		<header/>
 		<body>
-			<trans-unit id="tx_mdcalendarizefrontend_domain_model_event">
+			<trans-unit id="tx_mdcalendarizefrontend_domain_model_event" approved="yes">
 				<source>Event</source>
 				<target>Event</target>
 			</trans-unit>
-			<trans-unit id="tx_mdcalendarizefrontend_domain_model_event.md_user">
+			<trans-unit id="tx_mdcalendarizefrontend_domain_model_event.md_user" approved="yes">
 				<source>Frontend user</source>
 				<target>Frontend user</target>
 			</trans-unit>
-			<trans-unit id="tca.tab">
+			<trans-unit id="tca.tab" approved="yes">
 				<source>User</source>
 				<target>User</target>
 			</trans-unit>
 
-			<trans-unit id="list_events">
+			<trans-unit id="flexform.parent_category" approved="yes">
+				<source>Parent category</source>
+				<target>Übergeordnete Kategorie</target>
+			</trans-unit>
+
+			<trans-unit id="list_events" approved="yes">
 				<source>Your calendar entries</source>
 				<target>Kalendereinträge</target>
 			</trans-unit>
-			<trans-unit id="no_items">
+			<trans-unit id="no_items" approved="yes">
 				<source>There are currently no calendar entries.</source>
 				<target>Zur Zeit sind keine Kalendereinträge vorhanden.</target>
 			</trans-unit>
-			<trans-unit id="new">
+			<trans-unit id="new" approved="yes">
 				<source>Create new</source>
 				<target>Neuer Eintrag</target>
 			</trans-unit>
-			<trans-unit id="edit">
+			<trans-unit id="edit" approved="yes">
 				<source>Edit</source>
 				<target>Bearbeiten</target>
 			</trans-unit>
-			<trans-unit id="delete">
+			<trans-unit id="delete" approved="yes">
 				<source>Delete</source>
 				<target>Löschen</target>
 			</trans-unit>
 
-			<trans-unit id="new_event">
+			<trans-unit id="new_event" approved="yes">
 				<source>New event</source>
 				<target>Neuer Eintrag</target>
 			</trans-unit>
-			<trans-unit id="edit_event">
+			<trans-unit id="edit_event" approved="yes">
 				<source>Edit event</source>
 				<target>Eintrag bearbeiten</target>
 			</trans-unit>
 
-			<trans-unit id="access_denied">
+			<trans-unit id="access_denied" approved="yes">
 				<source>Access denied</source>
+				<target>Zugriff verweigert</target>
 			</trans-unit>
-			<trans-unit id="please_login">
+			<trans-unit id="please_login" approved="yes">
 				<source>Please login as a frontend user in order to use this functionality.</source>
 				<target>Bitte loggen Sie sich als Frontend user ein, um diese Funktionalität zu nutzen.</target>
 			</trans-unit>
 
-			<trans-unit id="modal.title">
+			<trans-unit id="modal.title" approved="yes">
 				<source>Delete entry</source>
 				<target>Eintrag löschen</target>
 			</trans-unit>
-			<trans-unit id="modal.close">
+			<trans-unit id="modal.close" approved="yes">
 				<source>Close</source>
 				<target>Schließen</target>
 			</trans-unit>
-			<trans-unit id="modal.delete">
+			<trans-unit id="modal.delete" approved="yes">
 				<source>Delete</source>
 				<target>Löschen</target>
 			</trans-unit>
-			<trans-unit id="modal.text">
+			<trans-unit id="modal.text" approved="yes">
 				<source>Do you realy want to delete this calendar entry?</source>
 				<target>Soll der Kalendereintrag wirklich gelöscht werden?</target>
 			</trans-unit>
 
-			<trans-unit id="save">
+			<trans-unit id="save" approved="yes">
 				<source>Save</source>
 				<target>Speichern</target>
 			</trans-unit>
-			<trans-unit id="or">
+			<trans-unit id="or" approved="yes">
 				<source>or</source>
 				<target>oder</target>
 			</trans-unit>
-			<trans-unit id="back_to_list">
+			<trans-unit id="back_to_list" approved="yes">
 				<source>Back to list</source>
 				<target>Zurück zur Liste</target>
 			</trans-unit>
 
-			<trans-unit id="event.title">
+			<trans-unit id="event.title" approved="yes">
 				<source>Title*</source>
 				<target>Titel*</target>
 			</trans-unit>
-			<trans-unit id="event.abstract">
+			<trans-unit id="event.abstract" approved="yes">
 				<source>Abstract</source>
 				<target>Abstrakt</target>
 			</trans-unit>
-			<trans-unit id="event.description">
+			<trans-unit id="event.description" approved="yes">
 				<source>Description</source>
 				<target>Beschreibung</target>
 			</trans-unit>
-			<trans-unit id="event.location">
+			<trans-unit id="event.location" approved="yes">
 				<source>Location</source>
 				<target>Ort</target>
 			</trans-unit>
-			<trans-unit id="event.locationLink">
+			<trans-unit id="event.locationLink" approved="yes">
 				<source>Location link</source>
 				<target>URL Ort</target>
 			</trans-unit>
-			<trans-unit id="event.organizer">
+			<trans-unit id="event.organizer" approved="yes">
 				<source>Organizer</source>
 				<target>Organisator</target>
 			</trans-unit>
-			<trans-unit id="event.organizerLink">
+			<trans-unit id="event.organizerLink" approved="yes">
 				<source>Organizer link</source>
 				<target>URL Organisator</target>
 			</trans-unit>
-			<trans-unit id="event.categories">
+			<trans-unit id="event.categories" approved="yes">
 				<source>Categories</source>
 				<target>Kategorien</target>
 			</trans-unit>
-			<trans-unit id="event.categoriesHelp">
+			<trans-unit id="event.categoriesHelp" approved="yes">
 				<source>Select more categories with pressed ctrl-key.</source>
 				<target>Mehrere Kategorien können mit gedrückter CTRL-Taste ausgewählt werden.</target>
 			</trans-unit>
-			<trans-unit id="event.calendarize.legend">
+			<trans-unit id="event.calendarize.legend" approved="yes">
 				<source>Date %s</source>
 				<target>Datum %s</target>
 			</trans-unit>
-			<trans-unit id="event.calendarize.startDate">
+			<trans-unit id="event.calendarize.startDate" approved="yes">
 				<source>Start date*</source>
 				<target>Startdatum</target>
 			</trans-unit>
-			<trans-unit id="event.calendarize.endDate">
+			<trans-unit id="event.calendarize.endDate" approved="yes">
 				<source>End date</source>
 				<target>Enddatum</target>
 			</trans-unit>
-			<trans-unit id="event.calendarize.startTime">
+			<trans-unit id="event.calendarize.startTime" approved="yes">
 				<source>Start time</source>
 				<target>Startzeit</target>
 			</trans-unit>
-			<trans-unit id="event.calendarize.endTime">
+			<trans-unit id="event.calendarize.endTime" approved="yes">
 				<source>End time</source>
 				<target>Endzeit</target>
 			</trans-unit>
-			<trans-unit id="event.calendarize.openEndTime">
+			<trans-unit id="event.calendarize.openEndTime" approved="yes">
 				<source>Open end?</source>
 				<target>Open end?</target>
 			</trans-unit>
-			<trans-unit id="event.calendarize.allDay">
+			<trans-unit id="event.calendarize.allDay" approved="yes">
 				<source>All day</source>
 				<target>Ganztägig</target>
 			</trans-unit>
-			<trans-unit id="event.calendarize.addItem">
+			<trans-unit id="event.calendarize.addItem" approved="yes">
 				<source>+ Add date</source>
 				<target>+ Datum hinzufügen</target>
 			</trans-unit>
-			<trans-unit id="event.calendarize.delItem">
+			<trans-unit id="event.calendarize.delItem" approved="yes">
 				<source>- Delete date</source>
 				<target>- Datum löschen</target>
 			</trans-unit>
 
-			<trans-unit id="controller.typoscript_missing">
+			<trans-unit id="controller.typoscript_missing" approved="yes">
 				<source>Please include the static TypoScript of ext:md_calendarize_frontend!</source>
 				<target>Bitte binden Sie das statische TypoScript der Extension md_calendarize_frontend ein!</target>
 			</trans-unit>
-			<trans-unit id="controller.access_error">
+			<trans-unit id="controller.access_error" approved="yes">
 				<source>You are not allowed to edit this record.</source>
 				<target>Keine Berechtigungen zum bearbeiten des Eintrags.</target>
 			</trans-unit>
-			<trans-unit id="controller.created">
+			<trans-unit id="controller.created" approved="yes">
 				<source>The event was successfully created.</source>
 				<target>Der Beitrag wurde erfolgreich erstellt.</target>
 			</trans-unit>
-			<trans-unit id="controller.updated">
+			<trans-unit id="controller.updated" approved="yes">
 				<source>The event was successfully updated.</source>
 				<target>Der Beitrag wurde erfolgreich aktualisiert.</target>
 			</trans-unit>
-			<trans-unit id="controller.deleted">
+			<trans-unit id="controller.deleted" approved="yes">
 				<source>The event was successfully deleted.</source>
 				<target>Der Beitrag wurde erfolgreich gelöscht.</target>
 			</trans-unit>
 
-			<trans-unit id="error.code.1593464351">
+			<trans-unit id="error.code.1593464351" approved="yes">
 				<source>Please enter a title for the event.</source>
 				<target>Der Titel des Eintrags darf nicht leer sein.</target>
 			</trans-unit>
-			<trans-unit id="error.code.1593465345">
+			<trans-unit id="error.code.1593465345" approved="yes">
 				<source>Please enter a start date for the event.</source>
 				<target>Das Startdatum des Eintrags darf nicht leer sein.</target>
 			</trans-unit>
 
-			<trans-unit id="pagination.overall" resname="pagination.overall">
+			<trans-unit id="pagination.overall" approved="yes">
 				<source>Page %s of %s</source>
 				<target>Seite %s von %s</target>
 			</trans-unit>
-			<trans-unit id="pagination.first" resname="pagination.first">
+			<trans-unit id="pagination.first" approved="yes">
 				<source>First</source>
 				<target>Anfang</target>
 			</trans-unit>
-			<trans-unit id="pagination.last" resname="">
+			<trans-unit id="pagination.last" approved="yes">
 				<source>Last</source>
 				<target>Ende</target>
 			</trans-unit>
-			<trans-unit id="pagination.previous" resname="pagination.previous">
+			<trans-unit id="pagination.previous" approved="yes">
 				<source>Previous</source>
 				<target>Vorherige</target>
 			</trans-unit>
-			<trans-unit id="pagination.next" resname="pagination.next">
+			<trans-unit id="pagination.next" approved="yes">
 				<source>Next</source>
 				<target>Nächste</target>
 			</trans-unit>

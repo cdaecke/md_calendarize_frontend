@@ -16,7 +16,7 @@ namespace Mediadreams\MdCalendarizeFrontend\Validator;
 
 use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3\CMS\Extbase\Validation\Error;
 use TYPO3\CMS\Extbase\Validation\Validator\AbstractValidator;
 
@@ -30,26 +30,12 @@ use TYPO3\CMS\Extbase\Validation\Validator\AbstractValidator;
  */
 class EventValidator extends AbstractValidator
 {
-    /**
-     * Object Manager
-     *
-     * @var ObjectManager
-     */
-    protected $objectManager;
-
-    /**
-     * @param ObjectManager $objectManager
-     */
-    public function injectCategoryRepository(ObjectManager $objectManager)
-    {
-        $this->objectManager = $objectManager;
-    }
 
     /**
      * @param mixed $value
-     * @return bool
+     * @return void
      */
-    protected function isValid($value): bool
+    protected function isValid($value): void
     {
         $error = null;
 
@@ -59,9 +45,9 @@ class EventValidator extends AbstractValidator
 
         // check title of event
         if ($value->getTitle() == '') {
-            $error = $this->objectManager->get(
+            $error = GeneralUtility::makeInstance(
                 Error::class,
-                'Please enter a title for the event.',
+                LocalizationUtility::translate('error.code.1593464351', 'md_calendarize_frontend'),
                 1593464351
             );
 
@@ -72,7 +58,7 @@ class EventValidator extends AbstractValidator
         $calendarize = GeneralUtility::_POST()['tx_mdcalendarizefrontend_frontend']['event']['calendarize'];
         foreach ($calendarize as $key => $configItem) {
             if ($configItem['startDate'] == '') {
-                $error = $this->objectManager->get(
+                $error = GeneralUtility::makeInstance(
                     Error::class,
                     'Please enter a start date for the event.',
                     1593465345
@@ -80,12 +66,6 @@ class EventValidator extends AbstractValidator
 
                 $this->result->forProperty('calendarize.'.$key.'.startDate')->addError($error);
             }
-        }
-
-        if ($error) {
-            return false;
-        } else {
-            return true;
         }
     }
 }

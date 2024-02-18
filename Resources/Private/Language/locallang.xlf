@@ -38,7 +38,6 @@
 
 			<trans-unit id="access_denied">
 				<source>Access denied</source>
-				<target>Zugriff verweigert</target>
 			</trans-unit>
 			<trans-unit id="please_login">
 				<source>Please login as a frontend user in order to use this functionality.</source>

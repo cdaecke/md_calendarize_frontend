@@ -23,14 +23,14 @@ class Event extends \HDNET\Calendarize\Domain\Model\Event
     /**
      * Frontend user, who created this entry
      *
-     * @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser
+     * @var \Mediadreams\MdCalendarizeFrontend\Domain\Model\FrontendUser
      */
     protected $mdUser = null;
 
     /**
      * Returns the mdUser
      *
-     * @return \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $mdUser
+     * @return \Mediadreams\MdCalendarizeFrontend\Domain\Model\FrontendUser $mdUser
      */
     public function getMdUser()
     {
@@ -40,7 +40,7 @@ class Event extends \HDNET\Calendarize\Domain\Model\Event
     /**
      * Sets the mdUser
      *
-     * @param \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $mdUser
+     * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\FrontendUser $mdUser
      * @return void
      */
     public function setMdUser($mdUser)
