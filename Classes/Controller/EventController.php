@@ -133,7 +133,7 @@ class EventController extends EventBaseController
      *
      * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $event
      * @TYPO3\CMS\Extbase\Annotation\Validate("Mediadreams\MdCalendarizeFrontend\Validator\EventValidator", param="event")
-     * @return void
+     * @return ResponseInterface
      */
     public function updateAction(Event $event): ResponseInterface
     {
@@ -170,7 +170,7 @@ class EventController extends EventBaseController
      * action delete
      *
      * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $event
-     * @return void
+     * @return ResponseInterface
      */
     public function deleteAction(Event $event): ResponseInterface
     {
