@@ -83,9 +83,9 @@ class EventController extends EventBaseController
      *
      * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $event
      * @TYPO3\CMS\Extbase\Annotation\Validate("Mediadreams\MdCalendarizeFrontend\Validator\EventValidator", param="event")
-     * @return void
+     * @return ResponseInterface
      */
-    public function createAction(Event $event)
+    public function createAction(Event $event): ResponseInterface
     {
         $event->setMdUser($this->feuserUid);
 
@@ -135,7 +135,7 @@ class EventController extends EventBaseController
      * @TYPO3\CMS\Extbase\Annotation\Validate("Mediadreams\MdCalendarizeFrontend\Validator\EventValidator", param="event")
      * @return void
      */
-    public function updateAction(Event $event)
+    public function updateAction(Event $event): ResponseInterface
     {
         $this->checkAccess($event);
 
@@ -172,7 +172,7 @@ class EventController extends EventBaseController
      * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $event
      * @return void
      */
-    public function deleteAction(Event $event)
+    public function deleteAction(Event $event): ResponseInterface
     {
         $this->checkAccess($event);
 
@@ -190,5 +190,4 @@ class EventController extends EventBaseController
 
         return $this->redirect('list');
     }
-
 }
