@@ -20,7 +20,7 @@ use TYPO3\CMS\Extbase\Persistence\QueryInterface;
  * Class CategoryRepository
  * @package Mediadreams\MdCalendarizeFrontend\Domain\Repository
  */
-class CategoryRepository extends \TYPO3\CMS\Extbase\Domain\Repository\CategoryRepository
+class CategoryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
 {
     protected $defaultOrderings = [
         'sorting' => QueryInterface::ORDER_ASCENDING,
