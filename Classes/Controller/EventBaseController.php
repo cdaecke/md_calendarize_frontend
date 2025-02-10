@@ -115,7 +115,7 @@ class EventBaseController extends ActionController
             $this->view->assign('pageData', $this->request->getAttribute('frontend.page.information')->getPageRecord());
         }
 
-        if (strlen($this->settings['parentCategory']) > 0) {
+        if (strlen($this->settings['parentCategory'] ?? '') > 0) {
             $categoryRepository = GeneralUtility::makeInstance(CategoryRepository::class);
             $categories = $categoryRepository->findByParent($this->settings['parentCategory']);
 
