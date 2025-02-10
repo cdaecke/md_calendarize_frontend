@@ -1,9 +1,11 @@
 <?php
+
+use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
+
 defined('TYPO3') || die('Access denied.');
 
 call_user_func(
-    function()
-    {
+    function () {
         \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
             'MdCalendarizeFrontend',
             'Frontend',
@@ -13,7 +15,8 @@ call_user_func(
             // non-cacheable actions
             [
                 \Mediadreams\MdCalendarizeFrontend\Controller\EventController::class => 'list, new, create, edit, update, delete'
-            ]
+            ],
+            ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT,
         );
 
         /**

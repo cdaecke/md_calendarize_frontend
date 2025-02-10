@@ -103,8 +103,6 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithContentArgumentAndRenderS
  */
 class UtcTimeViewHelper extends AbstractViewHelper
 {
-    use CompileWithContentArgumentAndRenderStatic;
-
     /**
      * Needed as child node's output can return a DateTime object which can't be escaped
      *
@@ -123,20 +121,14 @@ class UtcTimeViewHelper extends AbstractViewHelper
     }
 
     /**
-     * @param array $arguments
-     * @param \Closure $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
-     *
      * @return string
-     * @throws Exception
+     * @throws \TYPO3\CMS\Core\Context\Exception\AspectNotFoundException
      */
-    public static function renderStatic(
-        array $arguments,
-        \Closure $renderChildrenClosure,
-        RenderingContextInterface $renderingContext
-    ) {
-        $format = $arguments['format'];
-        $base = $arguments['base'] ?? GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('date', 'timestamp');
+    public function render(): string
+    {
+        $format = $this->arguments['format'];
+        $base = $this->arguments['base'] ?? GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('date', 'timestamp');
+
         if (is_string($base)) {
             $base = trim($base);
         }
@@ -145,7 +137,7 @@ class UtcTimeViewHelper extends AbstractViewHelper
             $format = $GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy'] ?: 'Y-m-d';
         }
 
-        $date = $renderChildrenClosure();
+        $date = $this->renderChildren();
         if ($date === null) {
             return '';
         }
@@ -169,9 +161,10 @@ class UtcTimeViewHelper extends AbstractViewHelper
             }
         }
 
-        if (strpos($format, '%') !== false) {
-            return strftime($format, $date->format('U'));
+        if (str_contains($format, '%')) {
+            return date($format, (int) $date->format('U'));
         }
+
         return $date->format($format);
     }
 }
