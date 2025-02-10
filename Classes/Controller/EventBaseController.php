@@ -111,8 +111,8 @@ class EventBaseController extends ActionController
             'contentObjectData' => $this->request->getAttribute('currentContentObject')->data
         ]);
 
-        if (is_object($GLOBALS['TSFE'])) {
-            $this->view->assign('pageData', $GLOBALS['TSFE']->page);
+        if (is_object($this->request->getAttribute('frontend.controller'))) {
+            $this->view->assign('pageData', $this->request->getAttribute('frontend.page.information')->getPageRecord());
         }
 
         if (strlen($this->settings['parentCategory']) > 0) {
