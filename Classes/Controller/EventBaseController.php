@@ -108,7 +108,7 @@ class EventBaseController extends ActionController
 
         $this->view->assignMultiple([
             'feUser' => $this->feUser,
-            'contentObjectData' => $this->configurationManager->getContentObject()->data
+            'contentObjectData' => $this->request->getAttribute('currentContentObject')->data
         ]);
 
         if (is_object($GLOBALS['TSFE'])) {
