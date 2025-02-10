@@ -35,7 +35,7 @@ class EventValidator extends AbstractValidator
      * @param mixed $value
      * @return void
      */
-    protected function isValid($value): void
+    protected function isValid(mixed $value): void
     {
         $error = null;
 
@@ -55,7 +55,7 @@ class EventValidator extends AbstractValidator
         }
 
         // check start date for all items
-        $calendarize = GeneralUtility::_POST()['tx_mdcalendarizefrontend_frontend']['event']['calendarize'];
+        $calendarize = $this->request->getParsedBody()['tx_mdcalendarizefrontend_frontend']['event']['calendarize'];
         foreach ($calendarize as $key => $configItem) {
             if ($configItem['startDate'] == '') {
                 $error = GeneralUtility::makeInstance(
