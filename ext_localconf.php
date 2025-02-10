@@ -14,7 +14,7 @@ call_user_func(
             [
                 \Mediadreams\MdCalendarizeFrontend\Controller\EventController::class => 'list, new, create, edit, update, delete'
             ],
-            \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_PLUGIN
+            'list_type'
         );
 
         /**
