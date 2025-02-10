@@ -85,9 +85,9 @@ class EventBaseController extends ActionController
     /**
      * Deactivate errorFlashMessage
      *
-     * @return bool|string
+     * @return bool
      */
-    public function getErrorFlashMessage()
+    public function getErrorFlashMessage(): bool
     {
         return false;
     }
@@ -129,7 +129,7 @@ class EventBaseController extends ActionController
      *
      * @throws \TYPO3\CMS\Core\Context\Exception\AspectNotFoundException
      */
-    public function initializeAction()
+    public function initializeAction(): void
     {
         parent::initializeAction();
 
