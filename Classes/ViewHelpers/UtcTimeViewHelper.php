@@ -161,9 +161,10 @@ class UtcTimeViewHelper extends AbstractViewHelper
             }
         }
 
-        if (strpos($format, '%') !== false) {
-            return strftime($format, $date->format('U'));
+        if (str_contains($format, '%')) {
+            return date($format, (int) $date->format('U'));
         }
+
         return $date->format($format);
     }
 }
