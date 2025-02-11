@@ -133,7 +133,7 @@ class EventBaseController extends ActionController
     {
         parent::initializeAction();
 
-        $this->feuserUid = $this->request->getAttribute('frontend.user')->user['uid'] ?? -1;
+        $this->feuserUid = $this->request->getAttribute('frontend.user')->user['uid'] ?? 0;
 
         if (isset($this->arguments['event'])) {
             $args = $this->request->getArguments();
