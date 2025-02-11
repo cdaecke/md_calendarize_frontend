@@ -15,6 +15,19 @@
 				<source>User</source>
 				<target>User</target>
 			</trans-unit>
+			<trans-unit id="tt_content.tab.configuration" approved="yes">
+				<source>Configuration</source>
+				<target>Konfiguration</target>
+			</trans-unit>
+
+			<trans-unit id="mdcalendarizefrontend_frontend.name" approved="yes">
+				<source>Calendarize frontend</source>
+				<target>Calendarize frontend</target>
+			</trans-unit>
+			<trans-unit id="mdcalendarizefrontend_frontend.description" approved="yes">
+				<source>Adds a plugin which allows frontend users to add, edit and delete ext:calendarize entries.</source>
+				<target>Fügt ein Plugin ein, welches einem Frontend User erlaubt, "ext:calendarize"-Datensätze hinzuzufügen, zu bearbeiten und zu löschen.</target>
+			</trans-unit>
 
 			<trans-unit id="flexform.parent_category" approved="yes">
 				<source>Parent category</source>

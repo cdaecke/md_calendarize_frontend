@@ -12,6 +12,16 @@
 			<trans-unit id="tca.tab">
 				<source>User</source>
 			</trans-unit>
+			<trans-unit id="tt_content.tab.configuration">
+				<source>Configuration</source>
+			</trans-unit>
+
+			<trans-unit id="mdcalendarizefrontend_frontend.name">
+				<source>Calendarize frontend</source>
+			</trans-unit>
+			<trans-unit id="mdcalendarizefrontend_frontend.description">
+				<source>Adds a plugin which allows frontend users to add, edit and delete ext:calendarize entries.</source>
+			</trans-unit>
 
 			<trans-unit id="list_events">
 				<source>Your calendar entries</source>
