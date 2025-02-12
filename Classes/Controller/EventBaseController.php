@@ -22,6 +22,7 @@ use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
 use Mediadreams\MdCalendarizeFrontend\Domain\Repository\CategoryRepository;
 use Mediadreams\MdCalendarizeFrontend\Domain\Repository\EventRepository;
 use Mediadreams\MdCalendarizeFrontend\Property\TypeConverter\TimestampConverter;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -40,30 +41,30 @@ class EventBaseController extends ActionController
     /**
      * @var array FeUser array
      */
-    protected $feUser = [];
+    protected array $feUser = [];
 
     /**
      * @var int FeUser Uid
      */
-    protected $feuserUid = 0;
+    protected int $feuserUid = 0;
     /**
      * eventRepository
      *
-     * @var EventRepository
+     * @var EventRepository|null
      */
-    protected $eventRepository = null;
+    protected ?EventRepository $eventRepository = null;
 
     /**
      * indexRepository
      *
-     * @var IndexRepository
+     * @var IndexRepository|null
      */
-    protected $indexRepository = null;
+    protected ?IndexRepository $indexRepository = null;
 
     /**
-     * @var SlugService
+     * @var SlugService|null
      */
-    protected $slugService;
+    protected ?SlugService $slugService = null;
 
     /**
      * EventBaseController constructor
@@ -126,8 +127,6 @@ class EventBaseController extends ActionController
 
     /**
      * initializeAction
-     *
-     * @throws \TYPO3\CMS\Core\Context\Exception\AspectNotFoundException
      */
     public function initializeAction(): void
     {
@@ -227,17 +226,17 @@ class EventBaseController extends ActionController
                 if ($args['action'] === 'update' && isset($args['event'])) {
                     // no "calendarize" item was provided -> remove all
                     $args['event']['calendarize'] = null;
-                    $this->request->setArguments($args);
+                    $this->request->getAttributes()['extbase']->setArguments($args);
                 }
             }
         }
     }
 
     /**
-     * Check, if news record belongs to user
-     * If news record does not belong to user, redirect to list action
+     * Check, if record belongs to user
+     * If record does not belong to user, redirect to list action
      *
-     * @param \Mediadreams\MdNewsfrontend\Domain\Model\News $newsRecord
+     * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $record
      * @return void
      */
     protected function checkAccess(\Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $record)
@@ -257,7 +256,6 @@ class EventBaseController extends ActionController
      * Set data for index repository
      *
      * @param Event $event The event object
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException
      */
     protected function setIndexObjects(Event $event): void
     {
@@ -332,10 +330,12 @@ class EventBaseController extends ActionController
         return $queryBuilder
             ->delete('tx_calendarize_domain_model_index')
             ->where(
-                $queryBuilder->expr()->eq('foreign_uid',
-                    $queryBuilder->createNamedParameter($eventUid, \PDO::PARAM_INT))
+                $queryBuilder->expr()->eq(
+                    'foreign_uid',
+                    $queryBuilder->createNamedParameter($eventUid, Connection::PARAM_INT)
+                )
             )
-            ->execute();
+            ->executeStatement();
     }
 
     /**
@@ -384,9 +384,8 @@ class EventBaseController extends ActionController
      * @param $items
      * @param int $itemsPerPage
      * @param int $maximumNumberOfLinks
-     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException
      */
-    protected function assignPagination($items, $itemsPerPage = 10, $maximumNumberOfLinks = 5)
+    protected function assignPagination($items, int $itemsPerPage = 10, int $maximumNumberOfLinks = 5): void
     {
         $currentPage = $this->request->hasArgument('currentPage') ? (int)$this->request->getArgument('currentPage') : 1;
 

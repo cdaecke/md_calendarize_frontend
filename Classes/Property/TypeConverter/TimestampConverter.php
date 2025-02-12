@@ -35,7 +35,6 @@ class TimestampConverter extends AbstractTypeConverter
      * @param array $convertedChildProperties not used currently
      * @param \TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface $configuration
      * @return int|mixed|\TYPO3\CMS\Extbase\Error\Error|\TYPO3\CMS\Extbase\Validation\Error|null
-     * @throws \Exception
      */
     public function convertFrom(
         $source,

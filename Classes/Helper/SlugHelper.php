@@ -16,6 +16,7 @@ namespace Mediadreams\MdCalendarizeFrontend\Helper;
 
 use TYPO3\CMS\Core\DataHandling\Model\RecordStateFactory;
 use TYPO3\CMS\Core\DataHandling\SlugHelper as CoreSlugHelper;
+use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -32,6 +33,7 @@ class SlugHelper
      * @param string $tableName
      * @param string $fieldName
      * @return string
+     * @throws SiteNotFoundException
      */
     public function getSlug($obj, array $recordData, string $tableName, string $fieldName = 'slug'): string
     {
