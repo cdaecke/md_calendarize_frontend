@@ -12,12 +12,12 @@
         "frontend",
         "fe_users"
     ],
-    "homepage": "http://www.mediadreams.org",
+    "homepage": "https://www.mediadreams.org",
     "authors": [
         {
             "name": "Christoph Daecke",
             "role": "Developer",
-            "homepage": "http://www.mediadreams.org"
+            "homepage": "https://www.mediadreams.org"
         }
     ],
     "support": {

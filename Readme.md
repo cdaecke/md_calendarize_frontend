@@ -6,8 +6,8 @@ Templates are ready to use with the [bootstrap framework](https://getbootstrap.c
 
 ## Requirements
 
-- TYPO3 v12.4
-- ext:calendarize >= 11.0
+- TYPO3 >= v9.5, < v14
+- ext:calendarize >= v6.0 < v15.0
 
 ## Installation
 
@@ -23,7 +23,7 @@ Templates are ready to use with the [bootstrap framework](https://getbootstrap.c
 ## Usage
 
 - Add the pluign ``Calendarize frontend`` on a page, which is restricted by the frontend user login
-- Select a storage page in the plugin-tab in the field ``Record Storage Page``
+- Select a storage page in the configuration-tab in the field ``Startingpoint``
 - Make sure to include `jQuery` in the header of the website in order to get some magic in the template working
 - Now a frontend user is able to add, edit and delete own records
 

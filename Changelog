@@ -1,3 +1,11 @@
+Version 4.0.0 (2025-02-12)
+    [FEATURE] Compatibility with TYPO3 v13
+
+    Big thanks to [Ruben Silva](https://github.com/rubensilva09), who did most of the work for the update!
+
+    All changes
+    https://github.com/cdaecke/md_calendarize_frontend/compare/3.0.1...4.0.0
+
 Version 3.0.1 (2024-08-22)
     [BUGFIX] extend `CategoryRepository` correctly
 

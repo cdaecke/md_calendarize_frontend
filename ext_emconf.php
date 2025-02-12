@@ -20,11 +20,11 @@ $EM_CONF[$_EXTKEY] = [
     'uploadfolder' => 0,
     'createDirs' => '',
     'clearCacheOnLoad' => 0,
-    'version' => '3.0.1',
+    'version' => '4.0.0',
     'constraints' => [
         'depends' => [
-            'typo3' => '12.4.0-12.4.99',
-            'calendarize' => '12.0.0-13.99.99',
+            'typo3' => '13.4.0-13.4.99',
+            'calendarize' => '14.0.0-14.99.99',
             'numbered_pagination' => '1.0.1-2.99.99',
         ],
         'conflicts' => [],
