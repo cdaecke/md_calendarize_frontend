@@ -14,7 +14,6 @@ namespace Mediadreams\MdCalendarizeFrontend\Controller;
  *  (c) 2020 Christoph Daecke <typo3@mediadreams.org>
  *
  ***/
-use GeorgRinger\NumberedPagination\NumberedPagination;
 use HDNET\Calendarize\Domain\Repository\RawIndexRepository;
 use HDNET\Calendarize\Service\IndexerService;
 use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
@@ -25,6 +24,8 @@ use Mediadreams\MdCalendarizeFrontend\Domain\Repository\FrontendUserRepository;
 use Mediadreams\MdCalendarizeFrontend\Helper\SlugHelper;
 use Mediadreams\MdCalendarizeFrontend\Property\TypeConverter\TimestampConverter;
 use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Core\Pagination\PaginatorInterface;
+use TYPO3\CMS\Core\Pagination\SlidingWindowPagination;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
@@ -311,28 +312,41 @@ class EventBaseController extends ActionController
         int $itemsPerPage = 10,
         int $maximumNumberOfLinks = 5
     ): void {
-        $currentPage = 1;
-        if ($this->request->hasArgument('currentPage')) {
-            $currentPageArgument = $this->request->getArgument('currentPage');
-            if (is_numeric($currentPageArgument)) {
-                $currentPage = max(1, (int)$currentPageArgument);
-            }
-        }
-
         $paginator = new QueryResultPaginator(
             $items,
-            $currentPage,
+            $this->getCurrentPageNumber(),
             $itemsPerPage
         );
 
-        $pagination = new NumberedPagination(
-            $paginator,
-            $maximumNumberOfLinks
-        );
+        $pagination = $this->createPagination($paginator, $maximumNumberOfLinks);
 
         $this->view->assign('pagination', [
             'paginator' => $paginator,
             'pagination' => $pagination,
         ]);
+    }
+
+    protected function getCurrentPageNumber(): int
+    {
+        if (!$this->request->hasArgument('currentPage')) {
+            return 1;
+        }
+
+        $currentPage = $this->request->getArgument('currentPage');
+        if (is_int($currentPage)) {
+            return max(1, $currentPage);
+        }
+        if (is_string($currentPage) && ctype_digit($currentPage)) {
+            return max(1, (int)$currentPage);
+        }
+
+        return 1;
+    }
+
+    protected function createPagination(
+        PaginatorInterface $paginator,
+        int $maximumNumberOfLinks
+    ): SlidingWindowPagination {
+        return new SlidingWindowPagination($paginator, max(1, $maximumNumberOfLinks));
     }
 }
