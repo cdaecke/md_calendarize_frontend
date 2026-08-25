@@ -1,0 +1,7 @@
+"tx_calendarize_domain_model_event"
+,"uid","pid","title","slug","md_user","calendarize"
+,1,1,"My Event","my-event",1,"1"
+
+"tx_calendarize_domain_model_configuration"
+,"uid","pid","type","handling","state","start_date","start_time","all_day","open_end_time"
+,1,1,"time","include","default","2026-09-01",36000,0,0

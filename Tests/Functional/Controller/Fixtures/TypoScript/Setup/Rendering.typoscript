@@ -1,0 +1,6 @@
+page = PAGE
+page {
+  10 < styles.content.get
+}
+
+plugin.tx_mdcalendarizefrontend_frontend.persistence.storagePid = 1
