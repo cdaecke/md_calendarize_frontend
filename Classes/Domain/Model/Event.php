@@ -1,9 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Mediadreams\MdCalendarizeFrontend\Domain\Model;
 
-use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
+use HDNET\Calendarize\Domain\Model\Configuration;
 
 /***
  *
@@ -17,7 +18,6 @@ use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
  ***/
 /**
  * Class Event
- * @package Mediadreams\MdCalendarizeFrontend\Domain\Model
  */
 class Event extends \HDNET\Calendarize\Domain\Model\Event
 {
@@ -42,26 +42,18 @@ class Event extends \HDNET\Calendarize\Domain\Model\Event
      * Sets the mdUser
      *
      * @param FrontendUser $mdUser
-     * @return void
      */
     public function setMdUser(FrontendUser $mdUser): void
     {
         $this->mdUser = $mdUser;
     }
 
-    /**
-     * Get first calendarize item.
-     *
-     * @return ObjectStorage|null
-     */
-    public function getFirstCalendarize()
+    public function getFirstCalendarize(): ?Configuration
     {
-        $calendarize = $this->getCalendarize();
-        if (!is_null($calendarize)) {
-            $calendarize->rewind();
-            return $calendarize->current();
-        } else {
-            return null;
+        foreach ($this->getCalendarize() as $configuration) {
+            return $configuration;
         }
+
+        return null;
     }
 }

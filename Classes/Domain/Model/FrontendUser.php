@@ -34,9 +34,9 @@ class FrontendUser extends AbstractEntity
     protected $password = '';
 
     /**
-     * @var ObjectStorage<FrontendUserGroup>
+     * @var ObjectStorage<FrontendUserGroup>|null
      */
-    protected $usergroup;
+    protected ?ObjectStorage $usergroup = null;
 
     /**
      * @var string
@@ -109,9 +109,9 @@ class FrontendUser extends AbstractEntity
     protected $company = '';
 
     /**
-     * @var ObjectStorage<FileReference>
+     * @var ObjectStorage<FileReference>|null
      */
-    protected $image;
+    protected ?ObjectStorage $image = null;
 
     /**
      * @var \DateTime|null
@@ -199,7 +199,7 @@ class FrontendUser extends AbstractEntity
      */
     public function addUsergroup(FrontendUserGroup $usergroup): void
     {
-        $this->usergroup->attach($usergroup);
+        $this->getUsergroup()->attach($usergroup);
     }
 
     /**
@@ -209,7 +209,7 @@ class FrontendUser extends AbstractEntity
      */
     public function removeUsergroup(FrontendUserGroup $usergroup): void
     {
-        $this->usergroup->detach($usergroup);
+        $this->getUsergroup()->detach($usergroup);
     }
 
     /**
@@ -218,9 +218,9 @@ class FrontendUser extends AbstractEntity
      *
      * @return ObjectStorage<FrontendUserGroup> An object storage containing the usergroup
      */
-    public function getUsergroup()
+    public function getUsergroup(): ObjectStorage
     {
-        return $this->usergroup;
+        return $this->usergroup ??= new ObjectStorage();
     }
 
     /**
@@ -518,9 +518,9 @@ class FrontendUser extends AbstractEntity
      *
      * @return ObjectStorage<FileReference>
      */
-    public function getImage()
+    public function getImage(): ObjectStorage
     {
-        return $this->image;
+        return $this->image ??= new ObjectStorage();
     }
 
     /**
@@ -536,9 +536,9 @@ class FrontendUser extends AbstractEntity
     /**
      * Returns the lastlogin value
      *
-     * @return \DateTime
+     * @return \DateTime|null
      */
-    public function getLastlogin()
+    public function getLastlogin(): ?\DateTime
     {
         return $this->lastlogin;
     }
