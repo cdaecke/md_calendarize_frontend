@@ -40,7 +40,7 @@ class TimestampConverter extends AbstractTypeConverter
         $source,
         $targetType,
         array $convertedChildProperties = array(),
-        \TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface $configuration = null
+        ?\TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface $configuration = null
     ) {
         if (empty($source)) {
             return null;

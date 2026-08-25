@@ -113,7 +113,7 @@ class UtcTimeViewHelper extends AbstractViewHelper
     /**
      * Initialize arguments
      */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         $this->registerArgument('date', 'mixed', 'Either an object implementing DateTimeInterface or a string that is accepted by DateTime constructor');
         $this->registerArgument('format', 'string', 'Format String which is taken to format the Date/Time', false, '');
