@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Mediadreams\MdCalendarizeFrontend\ViewHelpers;
@@ -15,102 +16,22 @@ namespace Mediadreams\MdCalendarizeFrontend\ViewHelpers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Context\Context;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
+use TYPO3Fluid\Fluid\Core\ViewHelper\InvalidArgumentValueException;
 
 /**
- * Formats an object implementing :php:`\DateTimeInterface`.
- * Copy of core viewhelper `DateViewHelper` with the difference, that it returns the dat in UTC
+ * Formats a timestamp or DateTimeInterface in UTC.
  *
- * Examples
- * ========
- *
- * Defaults
- * --------
- *
- * ::
- *
- *    <f:format.date>{dateObject}</f:format.date>
- *
- * ``1980-12-13``
- * Depending on the current date.
- *
- * Custom date format
- * ------------------
- *
- * ::
- *
- *    <f:format.date format="H:i">{dateObject}</f:format.date>
- *
- * ``01:23``
- * Depending on the current time.
- *
- * Relative date with given time
- * -----------------------------
- *
- * ::
- *
- *    <f:format.date format="Y" base="{dateObject}">-1 year</f:format.date>
- *
- * ``2016``
- * Assuming dateObject is in 2017.
- *
- * strtotime string
- * ----------------
- *
- * ::
- *
- *    <f:format.date format="d.m.Y - H:i:s">+1 week 2 days 4 hours 2 seconds</f:format.date>
- *
- * ``13.12.1980 - 21:03:42``
- * Depending on the current time, see https://www.php.net/manual/function.strtotime.php.
- *
- * Localized dates using strftime date format
- * ------------------------------------------
- *
- * ::
- *
- *    <f:format.date format="%d. %B %Y">{dateObject}</f:format.date>
- *
- * ``13. Dezember 1980``
- * Depending on the current date and defined locale. In the example you see the 1980-12-13 in a german locale.
- *
- * Inline notation
- * ---------------
- *
- * ::
- *
- *    {f:format.date(date: dateObject)}
- *
- * ``1980-12-13``
- * Depending on the value of ``{dateObject}``.
- *
- * Inline notation (2nd variant)
- * -----------------------------
- *
- * ::
- *
- *    {dateObject -> f:format.date()}
- *
- * ``1980-12-13``
- * Depending on the value of ``{dateObject}``.
+ * Usage: `{timestamp -> md:utcTime(format: 'H:i')}`
  */
-class UtcTimeViewHelper extends AbstractViewHelper
+final class UtcTimeViewHelper extends AbstractViewHelper
 {
-    /**
-     * Needed as child node's output can return a DateTime object which can't be escaped
-     *
-     * @var bool
-     */
     protected $escapeChildren = false;
 
-    /**
-     * Initialize arguments
-     */
+    public function __construct(private readonly Context $context) {}
+
     public function initializeArguments(): void
     {
         $this->registerArgument('date', 'mixed', 'Either an object implementing DateTimeInterface or a string that is accepted by DateTime constructor');
@@ -118,21 +39,14 @@ class UtcTimeViewHelper extends AbstractViewHelper
         $this->registerArgument('base', 'mixed', 'A base time (an object implementing DateTimeInterface or a string) used if $date is a relative date specification. Defaults to current time.');
     }
 
-    /**
-     * @return string
-     * @throws AspectNotFoundException
-     */
     public function render(): string
     {
-        $format = $this->arguments['format'];
-        $base = $this->arguments['base'] ?? GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('date', 'timestamp');
-
-        if (is_string($base)) {
-            $base = trim($base);
+        $format = $this->arguments['format'] ?? '';
+        if (!is_string($format)) {
+            throw new InvalidArgumentValueException('The format must be a string.', 1787668278);
         }
-
         if ($format === '') {
-            $format = $GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy'] ?: 'Y-m-d';
+            $format = $this->getDefaultDateFormat();
         }
 
         $date = $this->renderChildren();
@@ -140,29 +54,89 @@ class UtcTimeViewHelper extends AbstractViewHelper
             return '';
         }
 
-        if (is_string($date)) {
-            $date = trim($date);
+        $timestamp = $this->resolveTimestamp($date, $this->arguments['base'] ?? null);
+        $utcDate = new \DateTimeImmutable('@' . $timestamp);
+
+        return $utcDate->format($format);
+    }
+
+    public function getContentArgumentName(): string
+    {
+        return 'date';
+    }
+
+    private function resolveTimestamp(mixed $date, mixed $base): int
+    {
+        if ($date instanceof \DateTimeInterface) {
+            return $date->getTimestamp();
         }
 
+        if (is_int($date)) {
+            return $date;
+        }
+
+        if (!is_string($date)) {
+            throw new InvalidArgumentValueException('The date must be an integer, string or DateTimeInterface.', 1787668491);
+        }
+
+        $date = trim($date);
         if ($date === '') {
             $date = 'now';
         }
+        if (MathUtility::canBeInterpretedAsInteger($date)) {
+            return (int)$date;
+        }
 
-        if (!$date instanceof \DateTimeInterface) {
-            try {
-                $base = $base instanceof \DateTimeInterface ? $base->format('U') : strtotime((MathUtility::canBeInterpretedAsInteger($base) ? '@' : '') . $base);
-                $dateTimestamp = strtotime((MathUtility::canBeInterpretedAsInteger($date) ? '@' : '') . $date, $base);
-                $date = new \DateTime('@' . $dateTimestamp);
-                $date->setTimezone(new \DateTimeZone('UTC'));
-            } catch (\Exception $exception) {
-                throw new Exception('"' . $date . '" could not be parsed by \DateTime constructor: ' . $exception->getMessage(), 1241722579);
+        $timestamp = strtotime($date, $this->resolveBaseTimestamp($base));
+        if ($timestamp === false) {
+            throw new InvalidArgumentValueException(
+                '"' . $date . '" could not be converted to a timestamp.',
+                1241722579
+            );
+        }
+
+        return $timestamp;
+    }
+
+    private function resolveBaseTimestamp(mixed $base): int
+    {
+        if ($base === null) {
+            $base = $this->context->getPropertyFromAspect('date', 'timestamp');
+        }
+        if ($base instanceof \DateTimeInterface) {
+            return $base->getTimestamp();
+        }
+        if (is_int($base)) {
+            return $base;
+        }
+        if (is_string($base)) {
+            $base = trim($base);
+            if (MathUtility::canBeInterpretedAsInteger($base)) {
+                return (int)$base;
+            }
+            $timestamp = strtotime($base);
+            if ($timestamp !== false) {
+                return $timestamp;
             }
         }
 
-        if (str_contains($format, '%')) {
-            return date($format, (int) $date->format('U'));
+        throw new InvalidArgumentValueException('The base date could not be converted to a timestamp.', 1787668816);
+    }
+
+    private function getDefaultDateFormat(): string
+    {
+        $typo3Configuration = $GLOBALS['TYPO3_CONF_VARS'] ?? null;
+        if (!is_array($typo3Configuration)) {
+            return 'Y-m-d';
         }
 
-        return $date->format($format);
+        $systemConfiguration = $typo3Configuration['SYS'] ?? null;
+        if (!is_array($systemConfiguration)) {
+            return 'Y-m-d';
+        }
+
+        $dateFormat = $systemConfiguration['ddmmyy'] ?? null;
+
+        return is_string($dateFormat) && $dateFormat !== '' ? $dateFormat : 'Y-m-d';
     }
 }
