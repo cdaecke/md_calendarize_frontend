@@ -99,6 +99,10 @@ class EventController extends EventBaseController
             return $this->redirect('list');
         }
 
+        if (($response = $this->checkCalendarizeOwnership($event)) !== null) {
+            return $response;
+        }
+
         $event->setMdUser($this->frontendUser);
 
         $this->eventRepository->add($event);
@@ -147,6 +151,10 @@ class EventController extends EventBaseController
     public function updateAction(#[Validate(EventValidator::class)] Event $event): ResponseInterface
     {
         if (($response = $this->checkAccess($event)) !== null) {
+            return $response;
+        }
+
+        if (($response = $this->checkCalendarizeOwnership($event)) !== null) {
             return $response;
         }
 

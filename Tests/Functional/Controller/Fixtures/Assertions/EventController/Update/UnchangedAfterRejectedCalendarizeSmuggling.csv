@@ -1,0 +1,9 @@
+"tx_calendarize_domain_model_event"
+,"uid","title","md_user","deleted"
+,1,"My Event",1,0
+,2,"Other Event",2,0
+
+"tx_calendarize_domain_model_configuration"
+,"uid","start_date","state","handling","deleted"
+,1,"2026-09-01","default","include",0
+,2,"2026-09-02","default","include",0

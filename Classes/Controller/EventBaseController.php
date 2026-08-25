@@ -14,6 +14,7 @@ namespace Mediadreams\MdCalendarizeFrontend\Controller;
  *  (c) 2020 Christoph Daecke <typo3@mediadreams.org>
  *
  ***/
+use HDNET\Calendarize\Domain\Model\Configuration;
 use HDNET\Calendarize\Domain\Repository\RawIndexRepository;
 use HDNET\Calendarize\Service\IndexerService;
 use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
@@ -31,6 +32,7 @@ use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
 use TYPO3\CMS\Extbase\Pagination\QueryResultPaginator;
+use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
@@ -172,6 +174,44 @@ class EventBaseController extends ActionController
             );
 
             return $this->redirect('list');
+        }
+
+        return null;
+    }
+
+    /**
+     * Reject calendarize items that reference a Configuration the event did not already
+     * own before this request. The property mapper resolves a submitted "__identity" by
+     * uid alone, regardless of the allow-list, so without this check a calendarize
+     * sub-item could point at any Configuration record in the installation.
+     *
+     * @return ResponseInterface|null
+     */
+    protected function checkCalendarizeOwnership(Event $event): ?ResponseInterface
+    {
+        $ownUids = [];
+        $cleanCalendarize = $event->_getCleanProperty('calendarize');
+        if ($cleanCalendarize instanceof ObjectStorage) {
+            /** @var ObjectStorage<Configuration> $cleanCalendarize */
+            foreach ($cleanCalendarize as $configuration) {
+                $uid = $configuration->getUid();
+                if ($uid !== null) {
+                    $ownUids[] = $uid;
+                }
+            }
+        }
+
+        foreach ($event->getCalendarize() as $configuration) {
+            $uid = $configuration->getUid();
+            if ($uid !== null && !in_array($uid, $ownUids, true)) {
+                $this->addFlashMessage(
+                    $this->translate('controller.access_error'),
+                    '',
+                    ContextualFeedbackSeverity::ERROR
+                );
+
+                return $this->redirect('list');
+            }
         }
 
         return null;

@@ -184,6 +184,37 @@ final class EventControllerTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function updateActionRejectsCalendarizeItemNotAlreadyOwnedByTheEvent(): void
+    {
+        $this->importCSVDataSet(__DIR__ . '/Fixtures/Database/EventController/EventOwnedByLoggedInUser.csv');
+        $this->importCSVDataSet(__DIR__ . '/Fixtures/Database/EventController/EventOwnedByOtherUser.csv');
+        $trustedProperties = $this->getTrustedPropertiesFromEditForm(self::UID_OF_OWN_EVENT);
+
+        // Own event, but the calendarize item's __identity is swapped for the other
+        // user's Configuration (uid 2) - the field *name* is trusted, its value is not.
+        $response = $this->executeRequestWithLoggedInUser([
+            self::PLUGIN_NAMESPACE . '[action]' => 'update',
+            self::PLUGIN_NAMESPACE . '[controller]' => 'Event',
+            self::PLUGIN_NAMESPACE . '[__trustedProperties]' => $trustedProperties,
+            self::PLUGIN_NAMESPACE . '[event][__identity]' => (string)self::UID_OF_OWN_EVENT,
+            self::PLUGIN_NAMESPACE . '[event][title]' => 'My Event',
+            self::PLUGIN_NAMESPACE . '[event][calendarize][0][__identity]' => '2',
+            self::PLUGIN_NAMESPACE . '[event][calendarize][0][startDate]' => '01.01.1970',
+            self::PLUGIN_NAMESPACE . '[event][calendarize][0][startTime]' => '',
+            self::PLUGIN_NAMESPACE . '[event][calendarize][0][endTime]' => '',
+            self::PLUGIN_NAMESPACE . '[event][calendarize][0][allDay]' => '0',
+            self::PLUGIN_NAMESPACE . '[event][calendarize][0][openEndTime]' => '0',
+            self::PLUGIN_NAMESPACE . '[event][calendarize][0][type]' => 'time',
+            self::PLUGIN_NAMESPACE . '[event][calendarize][0][handling]' => 'exclude',
+            self::PLUGIN_NAMESPACE . '[event][calendarize][0][state]' => 'canceled',
+            self::PLUGIN_NAMESPACE . '[event][calendarize][0][day]' => 'weekday',
+        ]);
+
+        self::assertRedirectsToListAction($response);
+        $this->assertCSVDataSet(__DIR__ . '/Fixtures/Assertions/EventController/Update/UnchangedAfterRejectedCalendarizeSmuggling.csv');
+    }
+
+    #[Test]
     public function updateActionFromNonOwnerRedirectsToListAndLeavesEventUnchanged(): void
     {
         $this->importCSVDataSet(__DIR__ . '/Fixtures/Database/EventController/EventOwnedByLoggedInUser.csv');
