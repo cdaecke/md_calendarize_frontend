@@ -47,21 +47,19 @@ class EventController extends EventBaseController
      */
     public function listAction(): ResponseInterface
     {
-        if ($this->feuserUid === 0) {
+        if ($this->frontendUser === null) {
             return $this->redirect('accessDenied');
         }
 
-        if ($this->feuserUid > 0) {
-            $events = $this->eventRepository->findBy(['mdUser' => $this->feuserUid]);
+        $events = $this->eventRepository->findBy(['mdUser' => $this->frontendUser]);
 
-            $this->assignPagination(
-                $events,
-                (int)$this->settings['paginate']['itemsPerPage'],
-                (int)$this->settings['paginate']['maximumNumberOfLinks']
-            );
+        $this->assignPagination(
+            $events,
+            (int)$this->settings['paginate']['itemsPerPage'],
+            (int)$this->settings['paginate']['maximumNumberOfLinks']
+        );
 
-            $this->view->assign('events', $events);
-        }
+        $this->view->assign('events', $events);
 
         return $this->htmlResponse();
     }
@@ -73,7 +71,7 @@ class EventController extends EventBaseController
      */
     public function newAction(): ResponseInterface
     {
-        if ($this->feuserUid === 0) {
+        if ($this->frontendUser === null) {
             return $this->redirect('accessDenied');
         }
 
@@ -88,7 +86,11 @@ class EventController extends EventBaseController
      */
     public function createAction(#[Validate(EventValidator::class)] Event $event): ResponseInterface
     {
-        $event->setMdUser($this->feuserUid);
+        if ($this->frontendUser === null) {
+            return $this->redirect('accessDenied');
+        }
+
+        $event->setMdUser($this->frontendUser);
 
         $this->eventRepository->add($event);
 
@@ -122,7 +124,9 @@ class EventController extends EventBaseController
      */
     public function editAction(#[IgnoreValidation] Event $event): ResponseInterface
     {
-        $this->checkAccess($event);
+        if (($response = $this->checkAccess($event)) !== null) {
+            return $response;
+        }
         $this->view->assign('event', $event);
 
         return $this->htmlResponse();
@@ -136,7 +140,9 @@ class EventController extends EventBaseController
      */
     public function updateAction(#[Validate(EventValidator::class)] Event $event): ResponseInterface
     {
-        $this->checkAccess($event);
+        if (($response = $this->checkAccess($event)) !== null) {
+            return $response;
+        }
 
         foreach ($event->getCalendarize() as $item) {
             if (!$item->getStartTime()) {
@@ -173,7 +179,9 @@ class EventController extends EventBaseController
      */
     public function deleteAction(Event $event): ResponseInterface
     {
-        $this->checkAccess($event);
+        if (($response = $this->checkAccess($event)) !== null) {
+            return $response;
+        }
 
         // delete index objects
         $this->deleteIndexOfEvent($event->getUid());

@@ -24,16 +24,16 @@ class Event extends \HDNET\Calendarize\Domain\Model\Event
     /**
      * Frontend user, who created this entry
      *
-     * @var FrontendUser
+     * @var FrontendUser|null
      */
-    protected $mdUser = null;
+    protected ?FrontendUser $mdUser = null;
 
     /**
      * Returns the mdUser
      *
-     * @return FrontendUser $mdUser
+     * @return FrontendUser|null
      */
-    public function getMdUser()
+    public function getMdUser(): ?FrontendUser
     {
         return $this->mdUser;
     }
@@ -44,7 +44,7 @@ class Event extends \HDNET\Calendarize\Domain\Model\Event
      * @param FrontendUser $mdUser
      * @return void
      */
-    public function setMdUser($mdUser): void
+    public function setMdUser(FrontendUser $mdUser): void
     {
         $this->mdUser = $mdUser;
     }

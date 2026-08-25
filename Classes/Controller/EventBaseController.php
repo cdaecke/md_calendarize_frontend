@@ -19,9 +19,12 @@ use HDNET\Calendarize\Domain\Model\Index;
 use HDNET\Calendarize\Domain\Repository\IndexRepository;
 use HDNET\Calendarize\Service\Url\SlugService;
 use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
+use Mediadreams\MdCalendarizeFrontend\Domain\Model\FrontendUser;
 use Mediadreams\MdCalendarizeFrontend\Domain\Repository\CategoryRepository;
 use Mediadreams\MdCalendarizeFrontend\Domain\Repository\EventRepository;
+use Mediadreams\MdCalendarizeFrontend\Domain\Repository\FrontendUserRepository;
 use Mediadreams\MdCalendarizeFrontend\Property\TypeConverter\TimestampConverter;
+use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
@@ -31,6 +34,7 @@ use TYPO3\CMS\Extbase\Pagination\QueryResultPaginator;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
+use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 
 /**
  * Class EventBaseController
@@ -39,7 +43,7 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 class EventBaseController extends ActionController
 {
     /**
-     * @var array FeUser array
+     * @var array<string, mixed> FeUser array
      */
     protected array $feUser = [];
 
@@ -47,24 +51,27 @@ class EventBaseController extends ActionController
      * @var int FeUser Uid
      */
     protected int $feuserUid = 0;
+
+    protected ?FrontendUser $frontendUser = null;
+
     /**
      * eventRepository
      *
-     * @var EventRepository|null
+     * @var EventRepository
      */
-    protected ?EventRepository $eventRepository = null;
+    protected EventRepository $eventRepository;
 
     /**
      * indexRepository
      *
-     * @var IndexRepository|null
+     * @var IndexRepository
      */
-    protected ?IndexRepository $indexRepository = null;
+    protected IndexRepository $indexRepository;
 
     /**
-     * @var SlugService|null
+     * @var SlugService
      */
-    protected ?SlugService $slugService = null;
+    protected SlugService $slugService;
 
     /**
      * EventBaseController constructor
@@ -76,7 +83,8 @@ class EventBaseController extends ActionController
     public function __construct(
         EventRepository $eventRepository,
         IndexRepository $indexRepository,
-        SlugService $slugService
+        SlugService $slugService,
+        protected readonly FrontendUserRepository $frontendUserRepository,
     ) {
         $this->eventRepository = $eventRepository;
         $this->indexRepository = $indexRepository;
@@ -132,9 +140,21 @@ class EventBaseController extends ActionController
     {
         parent::initializeAction();
 
-        $this->feuserUid = $this->request->getAttribute('frontend.user')->user['uid'] ?? 0;
+        $frontendUserAuthentication = $this->request->getAttribute('frontend.user');
+        $this->feUser = $frontendUserAuthentication instanceof FrontendUserAuthentication
+            && is_array($frontendUserAuthentication->user)
+            ? $frontendUserAuthentication->user
+            : [];
+        $this->feuserUid = (int)($this->feUser['uid'] ?? 0);
+        if ($this->feuserUid > 0) {
+            $frontendUser = $this->frontendUserRepository->findByIdentifier($this->feuserUid);
+            if ($frontendUser instanceof FrontendUser) {
+                $this->frontendUser = $frontendUser;
+            }
+        }
 
         if (isset($this->arguments['event'])) {
+            $this->arguments['event']->getPropertyMappingConfiguration()->skipProperties('mdUser');
             $args = $this->request->getArguments();
 
             if (
@@ -237,19 +257,21 @@ class EventBaseController extends ActionController
      * If record does not belong to user, redirect to list action
      *
      * @param Event $record
-     * @return void
+     * @return ResponseInterface|null
      */
-    protected function checkAccess(Event $record)
+    protected function checkAccess(Event $record): ?ResponseInterface
     {
-        if ($record->getMdUser()->getUid() != $this->feuserUid) {
+        if ($this->frontendUser === null || $record->getMdUser()?->getUid() !== $this->frontendUser->getUid()) {
             $this->addFlashMessage(
                 LocalizationUtility::translate('controller.access_error', 'md_calendarize_frontend'),
                 '',
                 ContextualFeedbackSeverity::ERROR
             );
 
-            $this->redirect('list');
+            return $this->redirect('list');
         }
+
+        return null;
     }
 
     /**
