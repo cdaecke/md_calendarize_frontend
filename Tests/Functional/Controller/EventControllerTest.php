@@ -83,6 +83,22 @@ final class EventControllerTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function newActionRendersOnlyChildrenOfConfiguredParentCategory(): void
+    {
+        $this->importCSVDataSet(__DIR__ . '/Fixtures/Database/EventController/Categories.csv');
+
+        $html = $this->getHtmlWithLoggedInUser([
+            self::PLUGIN_NAMESPACE . '[action]' => 'new',
+            self::PLUGIN_NAMESPACE . '[controller]' => 'Event',
+        ]);
+
+        self::assertStringContainsString('Child Category One', $html);
+        self::assertStringContainsString('Child Category Two', $html);
+        self::assertStringNotContainsString('Unrelated Category', $html);
+        self::assertStringNotContainsString('Parent Category<', $html);
+    }
+
+    #[Test]
     public function createActionPersistsEventOwnedByLoggedInUserWithSubmittedCalendarizeItem(): void
     {
         $trustedProperties = $this->getTrustedPropertiesFromNewForm();

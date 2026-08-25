@@ -4,3 +4,4 @@ page {
 }
 
 plugin.tx_mdcalendarizefrontend_frontend.persistence.storagePid = 1
+plugin.tx_mdcalendarizefrontend_frontend.settings.parentCategory = 10
