@@ -83,6 +83,24 @@ final class EventControllerTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function listActionOrdersEventsByUidDescending(): void
+    {
+        $this->importCSVDataSet(__DIR__ . '/Fixtures/Database/EventController/EventOwnedByLoggedInUser.csv');
+        $this->importCSVDataSet(__DIR__ . '/Fixtures/Database/EventController/SecondEventOwnedByLoggedInUser.csv');
+
+        $html = $this->getHtmlWithLoggedInUser([
+            self::PLUGIN_NAMESPACE . '[action]' => 'list',
+            self::PLUGIN_NAMESPACE . '[controller]' => 'Event',
+        ]);
+
+        $positionOfHigherUid = strpos($html, 'Newest Event');
+        $positionOfLowerUid = strpos($html, 'My Event');
+        self::assertIsInt($positionOfHigherUid);
+        self::assertIsInt($positionOfLowerUid);
+        self::assertLessThan($positionOfLowerUid, $positionOfHigherUid);
+    }
+
+    #[Test]
     public function newActionRendersOnlyChildrenOfConfiguredParentCategory(): void
     {
         $this->importCSVDataSet(__DIR__ . '/Fixtures/Database/EventController/Categories.csv');
@@ -96,6 +114,14 @@ final class EventControllerTest extends FunctionalTestCase
         self::assertStringContainsString('Child Category Two', $html);
         self::assertStringNotContainsString('Unrelated Category', $html);
         self::assertStringNotContainsString('Parent Category<', $html);
+
+        // "Child Category Two" has the lower sorting value, so it must render first
+        // despite its higher uid - proves CategoryRepository's defaultOrderings is applied.
+        $positionOfCategoryTwo = strpos($html, 'Child Category Two');
+        $positionOfCategoryOne = strpos($html, 'Child Category One');
+        self::assertIsInt($positionOfCategoryTwo);
+        self::assertIsInt($positionOfCategoryOne);
+        self::assertLessThan($positionOfCategoryOne, $positionOfCategoryTwo);
     }
 
     #[Test]
