@@ -3,11 +3,13 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
 use Rector\TypeDeclaration\Rector\ClassMethod\AddVoidReturnTypeWhereNoReturnRector;
 use Ssch\TYPO3Rector\CodeQuality\General\ExtEmConfRector;
 use Ssch\TYPO3Rector\Configuration\Typo3Option;
 use Ssch\TYPO3Rector\Set\Typo3LevelSetList;
 use Ssch\TYPO3Rector\Set\Typo3SetList;
+use Ssch\TYPO3Rector\TYPO312\v0\ExtbaseActionsWithRedirectMustReturnResponseInterfaceRector;
 
 return RectorConfig::configure()
     ->withPaths([
@@ -19,12 +21,13 @@ return RectorConfig::configure()
         __DIR__ . '/../../ext_tables.php',
     ])
     ->withSkip([
+        ClassPropertyAssignToConstructorPromotionRector::class,
+        ExtbaseActionsWithRedirectMustReturnResponseInterfaceRector::class,
         __DIR__ . '/../../.Build/',
     ])
     ->withPhpSets(php82: true)
     ->withComposerBased(phpunit: true)
     ->withSets([
-        Typo3SetList::CODE_QUALITY,
         Typo3SetList::GENERAL,
         Typo3LevelSetList::UP_TO_TYPO3_14,
     ])

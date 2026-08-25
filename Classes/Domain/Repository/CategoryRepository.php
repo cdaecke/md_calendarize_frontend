@@ -13,14 +13,14 @@ namespace Mediadreams\MdCalendarizeFrontend\Domain\Repository;
  *  (c) 2020 Christoph Daecke <typo3@mediadreams.org>
  *
  ***/
-
+use TYPO3\CMS\Extbase\Persistence\Repository;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 
 /**
  * Class CategoryRepository
  * @package Mediadreams\MdCalendarizeFrontend\Domain\Repository
  */
-class CategoryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
+class CategoryRepository extends Repository
 {
     protected $defaultOrderings = [
         'sorting' => QueryInterface::ORDER_ASCENDING,

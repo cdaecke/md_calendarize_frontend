@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Mediadreams\MdCalendarizeFrontend\Domain\Model;
 
+use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
+
 /***
  *
  * This file is part of the "Calendarize frontend" Extension for TYPO3 CMS.
@@ -13,7 +15,6 @@ namespace Mediadreams\MdCalendarizeFrontend\Domain\Model;
  *  (c) 2020 Christoph Daecke <typo3@mediadreams.org>
  *
  ***/
-
 /**
  * Class Event
  * @package Mediadreams\MdCalendarizeFrontend\Domain\Model
@@ -23,14 +24,14 @@ class Event extends \HDNET\Calendarize\Domain\Model\Event
     /**
      * Frontend user, who created this entry
      *
-     * @var \Mediadreams\MdCalendarizeFrontend\Domain\Model\FrontendUser
+     * @var FrontendUser
      */
     protected $mdUser = null;
 
     /**
      * Returns the mdUser
      *
-     * @return \Mediadreams\MdCalendarizeFrontend\Domain\Model\FrontendUser $mdUser
+     * @return FrontendUser $mdUser
      */
     public function getMdUser()
     {
@@ -40,10 +41,10 @@ class Event extends \HDNET\Calendarize\Domain\Model\Event
     /**
      * Sets the mdUser
      *
-     * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\FrontendUser $mdUser
+     * @param FrontendUser $mdUser
      * @return void
      */
-    public function setMdUser($mdUser)
+    public function setMdUser($mdUser): void
     {
         $this->mdUser = $mdUser;
     }
@@ -51,7 +52,7 @@ class Event extends \HDNET\Calendarize\Domain\Model\Event
     /**
      * Get first calendarize item.
      *
-     * @return \TYPO3\CMS\Extbase\Persistence\ObjectStorage|null
+     * @return ObjectStorage|null
      */
     public function getFirstCalendarize()
     {

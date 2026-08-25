@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Mediadreams\MdCalendarizeFrontend\Domain\Repository;
 
+use TYPO3\CMS\Extbase\Persistence\QueryInterface;
+
 /***
  *
  * This file is part of the "Calendarize frontend" Extension for TYPO3 CMS.
@@ -13,7 +15,6 @@ namespace Mediadreams\MdCalendarizeFrontend\Domain\Repository;
  *  (c) 2020 Christoph Daecke <typo3@mediadreams.org>
  *
  ***/
-
 /**
  * Class EventRepository
  * @package Mediadreams\MdCalendarizeFrontend\Domain\Repository
@@ -25,6 +26,6 @@ class EventRepository extends \HDNET\Calendarize\Domain\Repository\EventReposito
      *
      */
     protected $defaultOrderings = [
-        'uid' => \TYPO3\CMS\Extbase\Persistence\QueryInterface::ORDER_DESCENDING,
+        'uid' => QueryInterface::ORDER_DESCENDING,
     ];
 }

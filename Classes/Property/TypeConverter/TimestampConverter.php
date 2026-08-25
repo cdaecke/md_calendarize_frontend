@@ -13,7 +13,8 @@ namespace Mediadreams\MdCalendarizeFrontend\Property\TypeConverter;
  *  (c) 2020 Christoph Daecke <typo3@mediadreams.org>
  *
  ***/
-
+use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface;
+use TYPO3\CMS\Extbase\Validation\Error;
 use TYPO3\CMS\Extbase\Property\TypeConverter\AbstractTypeConverter;
 
 /**
@@ -33,27 +34,27 @@ class TimestampConverter extends AbstractTypeConverter
      * @param string|int|array $source the string to be converted to a \DateTime object
      * @param string $targetType must be "DateTime"
      * @param array $convertedChildProperties not used currently
-     * @param \TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface $configuration
-     * @return int|mixed|\TYPO3\CMS\Extbase\Error\Error|\TYPO3\CMS\Extbase\Validation\Error|null
+     * @param PropertyMappingConfigurationInterface $configuration
+     * @return int|mixed|\TYPO3\CMS\Extbase\Error\Error|Error|null
      */
     public function convertFrom(
         $source,
         $targetType,
-        array $convertedChildProperties = array(),
-        ?\TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface $configuration = null
+        array $convertedChildProperties = [],
+        ?PropertyMappingConfigurationInterface $configuration = null
     ) {
         if (empty($source)) {
             return null;
         }
 
         $dateFormat = $configuration->getConfigurationValue(
-            \Mediadreams\MdCalendarizeFrontend\Property\TypeConverter\TimestampConverter::class,
+            TimestampConverter::class,
             self::CONFIGURATION_DATE_FORMAT
         );
 
         $dateObj = \DateTime::createFromFormat($dateFormat, $source);
         if ($dateObj === false || $dateObj->format($dateFormat) != $source) {
-            return new \TYPO3\CMS\Extbase\Validation\Error('The time "%s" was not recognized (for format "%s").',
+            return new Error('The time "%s" was not recognized (for format "%s").',
                 1307719788, [$source, $dateFormat]);
         }
 

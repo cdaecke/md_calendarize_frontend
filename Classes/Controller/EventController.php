@@ -13,12 +13,14 @@ namespace Mediadreams\MdCalendarizeFrontend\Controller;
  *  (c) 2020 Christoph Daecke <typo3@mediadreams.org>
  *
  ***/
-
+use Mediadreams\MdCalendarizeFrontend\Validator\EventValidator;
 use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
 use Mediadreams\MdCalendarizeFrontend\Helper\SlugHelper;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Attribute\IgnoreValidation;
+use TYPO3\CMS\Extbase\Attribute\Validate;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
@@ -50,7 +52,7 @@ class EventController extends EventBaseController
         }
 
         if ($this->feuserUid > 0) {
-            $events = $this->eventRepository->findByMdUser($this->feuserUid);
+            $events = $this->eventRepository->findBy(['mdUser' => $this->feuserUid]);
 
             $this->assignPagination(
                 $events,
@@ -81,11 +83,10 @@ class EventController extends EventBaseController
     /**
      * action create
      *
-     * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $event
-     * @TYPO3\CMS\Extbase\Annotation\Validate("Mediadreams\MdCalendarizeFrontend\Validator\EventValidator", param="event")
+     * @param Event $event
      * @return ResponseInterface
      */
-    public function createAction(Event $event): ResponseInterface
+    public function createAction(#[Validate(EventValidator::class)] Event $event): ResponseInterface
     {
         $event->setMdUser($this->feuserUid);
 
@@ -116,11 +117,10 @@ class EventController extends EventBaseController
     /**
      * action edit
      *
-     * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $event
-     * @TYPO3\CMS\Extbase\Annotation\IgnoreValidation("event")
+     * @param Event $event
      * @return ResponseInterface
      */
-    public function editAction(Event $event): ResponseInterface
+    public function editAction(#[IgnoreValidation] Event $event): ResponseInterface
     {
         $this->checkAccess($event);
         $this->view->assign('event', $event);
@@ -131,11 +131,10 @@ class EventController extends EventBaseController
     /**
      * action update
      *
-     * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $event
-     * @TYPO3\CMS\Extbase\Annotation\Validate("Mediadreams\MdCalendarizeFrontend\Validator\EventValidator", param="event")
+     * @param Event $event
      * @return ResponseInterface
      */
-    public function updateAction(Event $event): ResponseInterface
+    public function updateAction(#[Validate(EventValidator::class)] Event $event): ResponseInterface
     {
         $this->checkAccess($event);
 
@@ -169,7 +168,7 @@ class EventController extends EventBaseController
     /**
      * action delete
      *
-     * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $event
+     * @param Event $event
      * @return ResponseInterface
      */
     public function deleteAction(Event $event): ResponseInterface

@@ -13,7 +13,7 @@ namespace Mediadreams\MdCalendarizeFrontend\Controller;
  *  (c) 2020 Christoph Daecke <typo3@mediadreams.org>
  *
  ***/
-
+use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
 use GeorgRinger\NumberedPagination\NumberedPagination;
 use HDNET\Calendarize\Domain\Model\Index;
 use HDNET\Calendarize\Domain\Repository\IndexRepository;
@@ -118,7 +118,7 @@ class EventBaseController extends ActionController
 
         if (strlen($this->settings['parentCategory'] ?? '') > 0) {
             $categoryRepository = GeneralUtility::makeInstance(CategoryRepository::class);
-            $categories = $categoryRepository->findByParent($this->settings['parentCategory']);
+            $categories = $categoryRepository->findBy(['parent' => $this->settings['parentCategory']]);
 
             // Assign categories to template
             $this->view->assign('categories', $categories);
@@ -155,8 +155,8 @@ class EventBaseController extends ActionController
                     $propertyMappingConfiguration->forProperty($key)->allowAllProperties();
                     $propertyMappingConfiguration->forProperty($key . '.*')->allowAllProperties();
                     $propertyMappingConfiguration->forProperty($key)->setTypeConverterOption(
-                        'TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter',
-                        \TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED,
+                        PersistentObjectConverter::class,
+                        PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED,
                         true
                     );
 
@@ -236,10 +236,10 @@ class EventBaseController extends ActionController
      * Check, if record belongs to user
      * If record does not belong to user, redirect to list action
      *
-     * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $record
+     * @param Event $record
      * @return void
      */
-    protected function checkAccess(\Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $record)
+    protected function checkAccess(Event $record)
     {
         if ($record->getMdUser()->getUid() != $this->feuserUid) {
             $this->addFlashMessage(
@@ -347,11 +347,9 @@ class EventBaseController extends ActionController
      */
     protected function objectToArray(object $obj): array
     {
-        $reflectionClass = new \ReflectionClass(get_class($obj));
-        $arr = array();
+        $reflectionClass = new \ReflectionClass($obj::class);
+        $arr = [];
         foreach ($reflectionClass->getProperties() as $prop) {
-            $prop->setAccessible(true);
-
             $val = '';
             if ($prop->getName() === 'startDate' && !empty($prop->getValue($obj))) {
                 $val = $prop->getValue($obj)->format('Y-m-d');
@@ -360,7 +358,6 @@ class EventBaseController extends ActionController
             }
 
             $arr[$this->getDecamelized($prop->getName())] = $val;
-            $prop->setAccessible(false);
         }
 
         return $arr;
