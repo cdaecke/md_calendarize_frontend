@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Mediadreams\MdCalendarizeFrontend\Validator;
@@ -15,9 +16,6 @@ namespace Mediadreams\MdCalendarizeFrontend\Validator;
  ***/
 
 use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
-use TYPO3\CMS\Extbase\Validation\Error;
 use TYPO3\CMS\Extbase\Validation\Validator\AbstractValidator;
 
 /**
@@ -25,47 +23,76 @@ use TYPO3\CMS\Extbase\Validation\Validator\AbstractValidator;
  *
  * Usage example for controller action:
  * @TYPO3\CMS\Extbase\Annotation\Validate("Mediadreams\MdCalendarizeFrontend\Validator\EventValidator", param="event")
- *
- * @package Mediadreams\MdCalendarizeFrontend\Validator
  */
 class EventValidator extends AbstractValidator
 {
-
-    /**
-     * @param mixed $value
-     * @return void
-     */
     protected function isValid(mixed $value): void
     {
-        $error = null;
-
         if (!$value instanceof Event) {
-            throw new \LogicException('Model "Event" is needed for validation!');
+            throw new \LogicException('Model "Event" is needed for validation.', 1787662765);
         }
 
-        // check title of event
-        if ($value->getTitle() == '') {
-            $error = GeneralUtility::makeInstance(
-                Error::class,
-                LocalizationUtility::translate('error.code.1593464351', 'md_calendarize_frontend'),
-                1593464351
+        if ($value->getTitle() === '') {
+            $this->addErrorForProperty(
+                'title',
+                $this->translateErrorMessage('error.code.1593464351', 'md_calendarize_frontend'),
+                1593464351,
             );
-
-            $this->result->forProperty('title')->addError($error);
         }
 
-        // check start date for all items
-        $calendarize = $this->request->getParsedBody()['tx_mdcalendarizefrontend_frontend']['event']['calendarize'];
-        foreach ($calendarize as $key => $configItem) {
-            if ($configItem['startDate'] == '') {
-                $error = GeneralUtility::makeInstance(
-                    Error::class,
+        foreach ($this->getSubmittedCalendarizeItems() as $key => $configItem) {
+            $startDate = $configItem['startDate'] ?? null;
+            if (!is_string($startDate) || trim($startDate) === '') {
+                $this->addErrorForProperty(
+                    'calendarize.' . $key . '.startDate',
                     'Please enter a start date for the event.',
-                    1593465345
+                    1593465345,
                 );
-
-                $this->result->forProperty('calendarize.'.$key.'.startDate')->addError($error);
             }
         }
+    }
+
+    /**
+     * @return array<int, array<array-key, mixed>>
+     */
+    private function getSubmittedCalendarizeItems(): array
+    {
+        $parsedBody = $this->request?->getParsedBody();
+        if (!is_array($parsedBody)) {
+            return [];
+        }
+
+        $pluginArguments = $parsedBody['tx_mdcalendarizefrontend_frontend'] ?? null;
+        if (!is_array($pluginArguments)) {
+            return [];
+        }
+
+        $eventArguments = $pluginArguments['event'] ?? null;
+        if (!is_array($eventArguments)) {
+            return [];
+        }
+
+        $calendarizeItems = $eventArguments['calendarize'] ?? null;
+        if (!is_array($calendarizeItems)) {
+            return [];
+        }
+
+        $submittedItems = [];
+        $fallbackKey = 0;
+        foreach ($calendarizeItems as $key => $item) {
+            $itemKey = is_int($key)
+                ? $key
+                : filter_var($key, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+            if ($itemKey === false || $itemKey < 0 || array_key_exists($itemKey, $submittedItems)) {
+                while (array_key_exists($fallbackKey, $submittedItems)) {
+                    ++$fallbackKey;
+                }
+                $itemKey = $fallbackKey;
+            }
+            $submittedItems[$itemKey] = is_array($item) ? $item : [];
+            ++$fallbackKey;
+        }
+
+        return $submittedItems;
     }
 }
