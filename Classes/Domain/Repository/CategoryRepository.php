@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Mediadreams\MdCalendarizeFrontend\Domain\Repository;
@@ -13,14 +14,14 @@ namespace Mediadreams\MdCalendarizeFrontend\Domain\Repository;
  *  (c) 2020 Christoph Daecke <typo3@mediadreams.org>
  *
  ***/
-use TYPO3\CMS\Extbase\Persistence\Repository;
+use Mediadreams\MdCalendarizeFrontend\Domain\Model\Category;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
+use TYPO3\CMS\Extbase\Persistence\Repository;
 
 /**
- * Class CategoryRepository
- * @package Mediadreams\MdCalendarizeFrontend\Domain\Repository
+ * @extends Repository<Category>
  */
-class CategoryRepository extends Repository
+final class CategoryRepository extends Repository
 {
     protected $defaultOrderings = [
         'sorting' => QueryInterface::ORDER_ASCENDING,
