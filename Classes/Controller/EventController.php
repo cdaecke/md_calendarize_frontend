@@ -179,6 +179,19 @@ class EventController extends EventBaseController
      */
     public function deleteAction(Event $event): ResponseInterface
     {
+        if ($this->request->getMethod() !== 'POST') {
+            // Deleting is destructive and must not be reachable via a plain link: a GET
+            // request can be triggered cross-site (e.g. via a redirecting page) and would
+            // ride along the visitor's session cookie under SameSite=Lax.
+            $this->addFlashMessage(
+                $this->translate('controller.access_error'),
+                '',
+                ContextualFeedbackSeverity::ERROR
+            );
+
+            return $this->redirect('list');
+        }
+
         if (($response = $this->checkAccess($event)) !== null) {
             return $response;
         }

@@ -258,7 +258,7 @@ final class EventControllerTest extends FunctionalTestCase
             self::PLUGIN_NAMESPACE . '[action]' => 'delete',
             self::PLUGIN_NAMESPACE . '[controller]' => 'Event',
             self::PLUGIN_NAMESPACE . '[event]' => (string)self::UID_OF_OWN_EVENT,
-        ]);
+        ], 1, 'POST');
 
         $this->assertCSVDataSet(__DIR__ . '/Fixtures/Assertions/EventController/Delete/DeletedEvent.csv');
     }
@@ -272,10 +272,27 @@ final class EventControllerTest extends FunctionalTestCase
             self::PLUGIN_NAMESPACE . '[action]' => 'delete',
             self::PLUGIN_NAMESPACE . '[controller]' => 'Event',
             self::PLUGIN_NAMESPACE . '[event]' => (string)self::UID_OF_OTHER_EVENT,
-        ]);
+        ], 1, 'POST');
 
         self::assertRedirectsToListAction($response);
         $this->assertCSVDataSet(__DIR__ . '/Fixtures/Assertions/EventController/Delete/EventUnchangedAfterRejectedDelete.csv');
+    }
+
+    #[Test]
+    public function deleteActionViaGetIsRejectedAndLeavesEventUnchanged(): void
+    {
+        $this->importCSVDataSet(__DIR__ . '/Fixtures/Database/EventController/EventOwnedByLoggedInUser.csv');
+
+        // No method argument - defaults to GET, matching a link/redirect an attacker
+        // could get a logged-in victim's browser to navigate to.
+        $response = $this->executeRequestWithLoggedInUser([
+            self::PLUGIN_NAMESPACE . '[action]' => 'delete',
+            self::PLUGIN_NAMESPACE . '[controller]' => 'Event',
+            self::PLUGIN_NAMESPACE . '[event]' => (string)self::UID_OF_OWN_EVENT,
+        ]);
+
+        self::assertRedirectsToListAction($response);
+        $this->assertCSVDataSet(__DIR__ . '/Fixtures/Assertions/EventController/Delete/EventUnchangedAfterRejectedGetDelete.csv');
     }
 
     /**
@@ -291,11 +308,12 @@ final class EventControllerTest extends FunctionalTestCase
      * @param array<string, string> $queryParameters
      * @param positive-int $userUid
      */
-    private function executeRequestWithLoggedInUser(array $queryParameters = [], int $userUid = 1): ResponseInterface
+    private function executeRequestWithLoggedInUser(array $queryParameters = [], int $userUid = 1, string $method = 'GET'): ResponseInterface
     {
         $request = (new InternalRequest())
             ->withPageId(self::UID_OF_PAGE)
-            ->withQueryParameters($queryParameters);
+            ->withQueryParameters($queryParameters)
+            ->withMethod($method);
 
         $context = (new InternalRequestContext())->withFrontendUserId($userUid);
 

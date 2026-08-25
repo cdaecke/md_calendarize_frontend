@@ -20,7 +20,10 @@
                     </div>
                     <div class="col-sm-4 text-right {f:if(condition:'{i.isEven}',then:'even',else:'odd')}">
                         <f:link.action action="edit" arguments="{event : eventItem}" class="mr-3" title="{f:translate(key: 'edit')}: {eventItem.title}"><i class="fas fa-pencil-alt"></i> <f:translate key="edit" /></f:link.action>
-                        <f:link.action action="delete" arguments="{event : eventItem}" class="text-danger delete" additionalAttributes="{data-toggle: 'modal', data-target: '#deleteModal', data-bs-toggle: 'modal', data-bs-target: '#deleteModal'}" title="{f:translate(key: 'delete')}: {eventItem.title}"><i class="fas fa-trash-alt"></i> <f:translate key="delete" /></f:link.action>
+                        <f:variable name="deleteUri"><f:uri.action action="delete" arguments="{event: eventItem}" /></f:variable>
+                        <form method="post" action="{deleteUri}" class="d-inline delete-form">
+                            <button type="submit" class="btn btn-link p-0 text-danger delete" data-toggle="modal" data-target="#deleteModal" data-bs-toggle="modal" data-bs-target="#deleteModal" title="{f:translate(key: 'delete')}: {eventItem.title}"><i class="fas fa-trash-alt"></i> <f:translate key="delete" /></button>
+                        </form>
                     </div>
                 </f:for>
             </div>
@@ -51,7 +54,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal"><f:translate key="modal.close" /></button>
-                    <a href="#" class="btn btn-danger" id="delLink"><f:translate key="modal.delete" /></a>
+                    <a href="#" class="btn btn-danger" id="confirmDelete"><f:translate key="modal.delete" /></a>
                 </div>
             </div>
         </div>
@@ -61,8 +64,16 @@
         addEventListener('load', (event) => {
             (function($){
                 $(document).ready(function() {
+                    var formToDelete = null;
+
                     $('.delete').on('click', function() {
-                        $('#delLink').attr('href', $(this).attr('href'));
+                        formToDelete = $(this).closest('form');
+                    });
+
+                    $('#confirmDelete').on('click', function(e) {
+                        e.preventDefault();
+                        if (!formToDelete) return;
+                        formToDelete.trigger('submit');
                     });
                 });
             })(jQuery);
