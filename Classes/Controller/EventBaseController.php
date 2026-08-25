@@ -22,7 +22,7 @@ use Mediadreams\MdCalendarizeFrontend\Domain\Repository\CategoryRepository;
 use Mediadreams\MdCalendarizeFrontend\Domain\Repository\EventRepository;
 use Mediadreams\MdCalendarizeFrontend\Domain\Repository\FrontendUserRepository;
 use Mediadreams\MdCalendarizeFrontend\Helper\SlugHelper;
-use Mediadreams\MdCalendarizeFrontend\Property\TypeConverter\TimestampConverter;
+use Mediadreams\MdCalendarizeFrontend\Property\EventArgumentPropertyMappingConfigurator;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Pagination\PaginatorInterface;
 use TYPO3\CMS\Core\Pagination\SlidingWindowPagination;
@@ -33,10 +33,6 @@ use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
 use TYPO3\CMS\Extbase\Pagination\QueryResultPaginator;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
-use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
-use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface;
-use TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter;
-use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
@@ -66,7 +62,7 @@ class EventBaseController extends ActionController
         protected readonly EventRepository $eventRepository,
         protected readonly FrontendUserRepository $frontendUserRepository,
         protected readonly CategoryRepository $categoryRepository,
-        protected readonly TimestampConverter $timestampConverter,
+        protected readonly EventArgumentPropertyMappingConfigurator $eventArgumentPropertyMappingConfigurator,
         protected readonly PersistenceManagerInterface $persistenceManager,
         protected readonly SlugHelper $slugHelper,
         private readonly IndexerService $indexerService,
@@ -136,118 +132,27 @@ class EventBaseController extends ActionController
             }
         }
 
-        if (isset($this->arguments['event'])) {
-            $this->arguments['event']->getPropertyMappingConfiguration()->skipProperties('mdUser');
-            $args = $this->request->getArguments();
-
-            if (
-                (
-                    $args['action'] === 'create'
-                    || $args['action'] === 'update'
-                )
-                && isset($args['event']['calendarize'])
-            ) {
-                // property mapper configuration
-                $propertyMappingConfiguration = $this->arguments['event']
-                    ->getPropertyMappingConfiguration()
-                    ->getConfigurationFor('calendarize');
-
-                foreach ($args['event']['calendarize'] as $key => $items) {
-                    if (!is_array($items)) {
-                        continue;
-                    }
-
-                    $itemKey = (string)$key;
-                    if ($itemKey === '') {
-                        continue;
-                    }
-                    $propertyMappingConfiguration->allowProperties($itemKey);
-                    $itemConfiguration = $propertyMappingConfiguration->forProperty($itemKey);
-                    $itemConfiguration->allowProperties(
-                        '__identity',
-                        'startDate',
-                        'endDate',
-                        'startTime',
-                        'endTime',
-                        'openEndTime',
-                        'allDay',
-                        'type',
-                        'handling',
-                        'state',
-                        'day',
-                    );
-                    $itemConfiguration->setTypeConverterOption(
-                        PersistentObjectConverter::class,
-                        PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED,
-                        true
-                    );
-
-                    $startTime = $items['startTime'] ?? '';
-                    $endTime = $items['endTime'] ?? '';
-                    if ($startTime === '') {
-                        $args['event']['calendarize'][$key]['startTime'] = 0;
-                    }
-
-                    if ($endTime === '') {
-                        $args['event']['calendarize'][$key]['endTime'] = 0;
-                    }
-
-                    $extbaseRequestParameters = $this->request->getAttribute('extbase');
-                    if ($extbaseRequestParameters instanceof ExtbaseRequestParameters) {
-                        $extbaseRequestParameters->setArguments($args);
-                    }
-
-                    // set configuration for date
-                    $itemConfiguration
-                        ->forProperty('startDate')
-                        ->setTypeConverterOption(
-                            DateTimeConverter::class,
-                            DateTimeConverter::CONFIGURATION_DATE_FORMAT,
-                            $this->settings['dateFormat']
-                        );
-
-                    $itemConfiguration
-                        ->forProperty('endDate')
-                        ->setTypeConverterOption(
-                            DateTimeConverter::class,
-                            DateTimeConverter::CONFIGURATION_DATE_FORMAT,
-                            $this->settings['dateFormat']
-                        );
-
-                    if ($startTime !== '') {
-                        $this->configureTimestampConverter($itemConfiguration->forProperty('startTime'));
-                    }
-
-                    if ($endTime !== '') {
-                        $this->configureTimestampConverter($itemConfiguration->forProperty('endTime'));
-                    }
-                }
-            } else {
-                if ($args['action'] === 'update' && isset($args['event'])) {
-                    // no "calendarize" item was provided -> remove all
-                    $args['event']['calendarize'] = null;
-                    $extbaseRequestParameters = $this->request->getAttribute('extbase');
-                    if ($extbaseRequestParameters instanceof ExtbaseRequestParameters) {
-                        $extbaseRequestParameters->setArguments($args);
-                    }
-                }
-            }
-        }
-    }
-
-    private function configureTimestampConverter(PropertyMappingConfigurationInterface $configuration): void
-    {
-        if (!$configuration instanceof PropertyMappingConfiguration) {
-            throw new \LogicException('Expected a concrete property mapping configuration.', 1787654591);
+        if (!isset($this->arguments['event'])) {
+            return;
         }
 
-        $configuration
-            ->setTypeConverter($this->timestampConverter)
-            ->setTypeConverterOption(
-                TimestampConverter::class,
-                TimestampConverter::CONFIGURATION_DATE_FORMAT,
-                $this->settings['timeFormat']
-            );
+        $args = $this->request->getArguments();
+        if (!is_array($args['event'] ?? null)) {
+            return;
+        }
+
+        $args['event'] = $this->eventArgumentPropertyMappingConfigurator->configure(
+            $this->arguments['event']->getPropertyMappingConfiguration(),
+            (string)($args['action'] ?? ''),
+            $args['event'],
+            (string)($this->settings['dateFormat'] ?? ''),
+            (string)($this->settings['timeFormat'] ?? ''),
+        );
+
+        $extbaseRequestParameters = $this->request->getAttribute('extbase');
+        if ($extbaseRequestParameters instanceof ExtbaseRequestParameters) {
+            $extbaseRequestParameters->setArguments($args);
+        }
     }
 
     /**

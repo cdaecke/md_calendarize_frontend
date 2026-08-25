@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace Mediadreams\MdCalendarizeFrontend\Tests\Unit\Controller;
 
 use Mediadreams\MdCalendarizeFrontend\Controller\EventBaseController;
+use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
+use Mediadreams\MdCalendarizeFrontend\Domain\Model\FrontendUser;
+use Mediadreams\MdCalendarizeFrontend\Domain\Repository\FrontendUserRepository;
+use Mediadreams\MdCalendarizeFrontend\Property\EventArgumentPropertyMappingConfigurator;
+use Mediadreams\MdCalendarizeFrontend\Property\TypeConverter\TimestampConverter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -12,6 +17,7 @@ use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Pagination\ArrayPaginator;
 use TYPO3\CMS\Core\Pagination\PaginatorInterface;
 use TYPO3\CMS\Core\Pagination\SlidingWindowPagination;
+use TYPO3\CMS\Extbase\Mvc\Controller\Arguments;
 use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Extbase\Mvc\RequestInterface;
@@ -128,6 +134,86 @@ final class EventBaseControllerTest extends TestCase
             (new ServerRequest())->withAttribute('extbase', $extbaseRequestParameters)
         );
     }
+
+    public function testInitializeActionLeavesFrontendUserNullWhenNotLoggedIn(): void
+    {
+        // findByIdentifier() is never called on this path (feuserUid stays 0), so a
+        // real, never-invoked placeholder is used instead of a test double -
+        // FrontendUserRepository is final and cannot be doubled by PHPUnit.
+        $frontendUserRepository = $this->createUninvokedFrontendUserRepository();
+
+        $subject = $this->createSubject($frontendUserRepository);
+        $subject->setRequestForTest($this->createRequest(['action' => 'list']));
+        $subject->setArgumentsForTest(new Arguments());
+
+        $subject->initializeAction();
+
+        self::assertNull($subject->getFrontendUserForTest());
+    }
+
+    public function testInitializeActionDelegatesPropertyMappingConfigurationAndWritesArgumentsBack(): void
+    {
+        $frontendUserRepository = $this->createUninvokedFrontendUserRepository();
+
+        $arguments = new Arguments();
+        $arguments->addNewArgument('event', Event::class);
+
+        $requestArguments = [
+            'action' => 'create',
+            'event' => [
+                'calendarize' => [
+                    '0' => ['startDate' => '01.09.2026', 'startTime' => '', 'endTime' => ''],
+                ],
+            ],
+        ];
+
+        $subject = $this->createSubject($frontendUserRepository);
+        $subject->setRequestForTest($this->createRequest($requestArguments));
+        $subject->setArgumentsForTest($arguments);
+        $subject->setSettingsForTest(['dateFormat' => 'd.m.Y', 'timeFormat' => 'H:i']);
+
+        $subject->initializeAction();
+
+        $extbaseRequestParameters = $subject->getRequestForTest()->getAttribute('extbase');
+        self::assertInstanceOf(ExtbaseRequestParameters::class, $extbaseRequestParameters);
+        $writtenArguments = $extbaseRequestParameters->getArguments();
+        $eventArguments = $writtenArguments['event'];
+        self::assertIsArray($eventArguments);
+        $calendarizeArguments = $eventArguments['calendarize'];
+        self::assertIsArray($calendarizeArguments);
+        $item = $calendarizeArguments['0'];
+        self::assertIsArray($item);
+
+        self::assertSame(0, $item['startTime']);
+        self::assertSame(0, $item['endTime']);
+        self::assertTrue(
+            $arguments['event']->getPropertyMappingConfiguration()->shouldSkip('mdUser')
+        );
+    }
+
+    private function createSubject(FrontendUserRepository $frontendUserRepository): TestableEventBaseController
+    {
+        $subject = (new \ReflectionClass(TestableEventBaseController::class))->newInstanceWithoutConstructor();
+
+        $reflectionClass = new \ReflectionClass(EventBaseController::class);
+
+        $frontendUserRepositoryProperty = $reflectionClass->getProperty('frontendUserRepository');
+        $frontendUserRepositoryProperty->setValue($subject, $frontendUserRepository);
+
+        $configuratorProperty = $reflectionClass->getProperty('eventArgumentPropertyMappingConfigurator');
+        $configuratorProperty->setValue($subject, new EventArgumentPropertyMappingConfigurator(new TimestampConverter()));
+
+        return $subject;
+    }
+
+    /**
+     * FrontendUserRepository is final and cannot be doubled by PHPUnit; this instance
+     * is only ever used for tests where findByIdentifier() is never actually called.
+     */
+    private function createUninvokedFrontendUserRepository(): FrontendUserRepository
+    {
+        return (new \ReflectionClass(FrontendUserRepository::class))->newInstanceWithoutConstructor();
+    }
 }
 
 final class TestableEventBaseController extends EventBaseController
@@ -135,6 +221,29 @@ final class TestableEventBaseController extends EventBaseController
     public function setRequestForTest(RequestInterface $request): void
     {
         $this->request = $request;
+    }
+
+    public function getRequestForTest(): RequestInterface
+    {
+        return $this->request;
+    }
+
+    public function setArgumentsForTest(Arguments $arguments): void
+    {
+        $this->arguments = $arguments;
+    }
+
+    /**
+     * @param array<string, mixed> $settings
+     */
+    public function setSettingsForTest(array $settings): void
+    {
+        $this->settings = $settings;
+    }
+
+    public function getFrontendUserForTest(): ?FrontendUser
+    {
+        return $this->frontendUser;
     }
 
     public function resolveCurrentPageNumber(): int
