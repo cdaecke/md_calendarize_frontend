@@ -15,36 +15,40 @@ namespace Mediadreams\MdCalendarizeFrontend\Controller;
  *
  ***/
 use GeorgRinger\NumberedPagination\NumberedPagination;
-use HDNET\Calendarize\Domain\Model\Index;
-use HDNET\Calendarize\Domain\Repository\IndexRepository;
-use HDNET\Calendarize\Service\Url\SlugService;
+use HDNET\Calendarize\Domain\Repository\RawIndexRepository;
+use HDNET\Calendarize\Service\IndexerService;
 use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
 use Mediadreams\MdCalendarizeFrontend\Domain\Model\FrontendUser;
 use Mediadreams\MdCalendarizeFrontend\Domain\Repository\CategoryRepository;
 use Mediadreams\MdCalendarizeFrontend\Domain\Repository\EventRepository;
 use Mediadreams\MdCalendarizeFrontend\Domain\Repository\FrontendUserRepository;
+use Mediadreams\MdCalendarizeFrontend\Helper\SlugHelper;
 use Mediadreams\MdCalendarizeFrontend\Property\TypeConverter\TimestampConverter;
 use Psr\Http\Message\ResponseInterface;
-use TYPO3\CMS\Core\Database\Connection;
-use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
 use TYPO3\CMS\Extbase\Pagination\QueryResultPaginator;
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
+use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface;
 use TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter;
 use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3\CMS\Frontend\Page\PageInformation;
 
 /**
  * Class EventBaseController
  */
 class EventBaseController extends ActionController
 {
+    private const EVENT_REGISTER_KEY = 'Event';
+    private const EVENT_TABLE = 'tx_calendarize_domain_model_event';
+
     /**
      * @var array<string, mixed> FeUser array
      */
@@ -57,43 +61,16 @@ class EventBaseController extends ActionController
 
     protected ?FrontendUser $frontendUser = null;
 
-    /**
-     * eventRepository
-     *
-     * @var EventRepository
-     */
-    protected EventRepository $eventRepository;
-
-    /**
-     * indexRepository
-     *
-     * @var IndexRepository
-     */
-    protected IndexRepository $indexRepository;
-
-    /**
-     * @var SlugService
-     */
-    protected SlugService $slugService;
-
-    /**
-     * EventBaseController constructor
-     *
-     * @param EventRepository $eventRepository
-     * @param IndexRepository $indexRepository
-     * @param SlugService $slugService
-     */
     public function __construct(
-        EventRepository $eventRepository,
-        IndexRepository $indexRepository,
-        SlugService $slugService,
+        protected readonly EventRepository $eventRepository,
         protected readonly FrontendUserRepository $frontendUserRepository,
+        protected readonly CategoryRepository $categoryRepository,
         protected readonly TimestampConverter $timestampConverter,
-    ) {
-        $this->eventRepository = $eventRepository;
-        $this->indexRepository = $indexRepository;
-        $this->slugService = $slugService;
-    }
+        protected readonly PersistenceManagerInterface $persistenceManager,
+        protected readonly SlugHelper $slugHelper,
+        private readonly IndexerService $indexerService,
+        private readonly RawIndexRepository $rawIndexRepository,
+    ) {}
 
     /**
      * Deactivate errorFlashMessage
@@ -113,24 +90,25 @@ class EventBaseController extends ActionController
         // check if TypoScript is loaded
         if (!isset($this->settings['dateFormat'])) {
             $this->addFlashMessage(
-                LocalizationUtility::translate('controller.typoscript_missing', 'md_calendarize_frontend'),
+                $this->translate('controller.typoscript_missing'),
                 '',
                 ContextualFeedbackSeverity::ERROR
             );
         }
 
-        $this->view->assignMultiple([
-            'feUser' => $this->feUser,
-            'contentObjectData' => $this->request->getAttribute('currentContentObject')->data,
-        ]);
+        $currentContentObject = $this->request->getAttribute('currentContentObject');
+        $this->view->assign('feUser', $this->feUser);
+        if ($currentContentObject instanceof ContentObjectRenderer) {
+            $this->view->assign('contentObjectData', $currentContentObject->data);
+        }
 
-        if (is_object($this->request->getAttribute('frontend.controller'))) {
-            $this->view->assign('pageData', $this->request->getAttribute('frontend.page.information')->getPageRecord());
+        $pageInformation = $this->request->getAttribute('frontend.page.information');
+        if ($pageInformation instanceof PageInformation) {
+            $this->view->assign('pageData', $pageInformation->getPageRecord());
         }
 
         if (strlen($this->settings['parentCategory'] ?? '') > 0) {
-            $categoryRepository = GeneralUtility::makeInstance(CategoryRepository::class);
-            $categories = $categoryRepository->findBy(['parent' => $this->settings['parentCategory']]);
+            $categories = $this->categoryRepository->findBy(['parent' => $this->settings['parentCategory']]);
 
             // Assign categories to template
             $this->view->assign('categories', $categories);
@@ -282,7 +260,7 @@ class EventBaseController extends ActionController
     {
         if ($this->frontendUser === null || $record->getMdUser()?->getUid() !== $this->frontendUser->getUid()) {
             $this->addFlashMessage(
-                LocalizationUtility::translate('controller.access_error', 'md_calendarize_frontend'),
+                $this->translate('controller.access_error'),
                 '',
                 ContextualFeedbackSeverity::ERROR
             );
@@ -293,138 +271,53 @@ class EventBaseController extends ActionController
         return null;
     }
 
-    /**
-     * Set data for index repository
-     *
-     * @param Event $event The event object
-     */
-    protected function setIndexObjects(Event $event): void
+    protected function synchronizeIndex(Event $event): void
     {
-        // Generate slug
-        $neededItems = [];
-        foreach ($event->getCalendarize() as $key => $item) {
-            $itemKey = ['key' => $key];
-            $neededItems[] = array_merge($this->objectToArray($item), $itemKey);
-        }
-
-        $slugs = $this->slugService->generateSlugForItems(
-            'Event',
-            $this->objectToArray($event),
-            $neededItems
-        );
-
-        $itemsWithSlug = [];
-        foreach ($neededItems as $key => $value) {
-            $itemsWithSlug[$value['key']] = array_merge($value, $slugs[$key] ?? []);
-        }
-
-        // Save items
-        foreach ($event->getCalendarize() as $key => $items) {
-            /** @var $indexObject \HDNET\Calendarize\Domain\Model\Index */
-            $indexObject = GeneralUtility::makeInstance(Index::class);
-            $indexObject->setForeignUid($event->getUid());
-            $indexObject->setUniqueRegisterKey('Event');
-            $indexObject->setForeignTable('tx_calendarize_domain_model_event');
-            $indexObject->setState($items->getState());
-            $indexObject->setAllDay($items->isAllDay());
-            $indexObject->setOpenEndTime($items->isOpenEndTime());
-            $indexObject->setStartDate($items->getStartDate());
-
-            // get unique slug
-            $slug = $this->slugService->makeSlugUnique($itemsWithSlug[$key]);
-            $indexObject->setSlug($slug);
-
-            if (!empty($items->getEndDate())) {
-                $indexObject->setEndDate($items->getEndDate());
-            } else {
-                $indexObject->setEndDate($items->getStartDate());
-            }
-
-            if (!empty($items->getStartTime())) {
-                $indexObject->setStartTime($items->getStartTime());
-            }
-
-            if (!empty($items->getEndTime())) {
-                $indexObject->setEndTime($items->getEndTime());
-            }
-
-            $this->indexRepository->add($indexObject);
-
-            // persist data in order to get correct slug for next item
-            $persistenceManager = GeneralUtility::makeInstance(PersistenceManager::class);
-            $persistenceManager->persistAll();
-        }
+        $this->persistenceManager->persistAll();
+        $this->indexerService->reindex(self::EVENT_REGISTER_KEY, self::EVENT_TABLE, $this->getEventUid($event));
     }
 
-    /**
-     * Delete index objects of an event
-     *
-     * @param int $eventUid
-     * @return mixed
-     */
-    protected function deleteIndexOfEvent(int $eventUid)
+    protected function deleteIndexOfEvent(int $eventUid): void
     {
-        // delete index objects
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getQueryBuilderForTable('tx_calendarize_domain_model_index');
-
-        return $queryBuilder
-            ->delete('tx_calendarize_domain_model_index')
-            ->where(
-                $queryBuilder->expr()->eq(
-                    'foreign_uid',
-                    $queryBuilder->createNamedParameter($eventUid, Connection::PARAM_INT)
-                )
-            )
-            ->executeStatement();
+        $this->rawIndexRepository->deleteByIdentifier([
+            'unique_register_key' => self::EVENT_REGISTER_KEY,
+            'foreign_table' => self::EVENT_TABLE,
+            'foreign_uid' => $eventUid,
+        ]);
     }
 
-    /**
-     * Convert an object to an array
-     *
-     * @param object $obj
-     * @return array
-     * @throws \ReflectionException
-     */
-    protected function objectToArray(object $obj): array
+    protected function getEventUid(Event $event): int
     {
-        $reflectionClass = new \ReflectionClass($obj::class);
-        $arr = [];
-        foreach ($reflectionClass->getProperties() as $prop) {
-            $val = '';
-            if ($prop->getName() === 'startDate' && !empty($prop->getValue($obj))) {
-                $val = $prop->getValue($obj)->format('Y-m-d');
-            } else {
-                $val = $prop->getValue($obj);
-            }
-
-            $arr[$this->getDecamelized($prop->getName())] = $val;
+        $uid = $event->getUid();
+        if ($uid === null) {
+            throw new \LogicException('Calendarize indices require a persisted event.', 1787669112);
         }
 
-        return $arr;
+        return $uid;
     }
 
-    /**
-     * Get a camel case string decamelized, eg. "startDate" will become "start_date"
-     *
-     * @param string $str
-     * @return string
-     */
-    protected function getDecamelized(string $str): string
+    protected function translate(string $key): string
     {
-        return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $str));
+        return LocalizationUtility::translate($key, 'md_calendarize_frontend') ?? $key;
     }
 
     /**
      * Assign pagination to current view object
      *
-     * @param $items
-     * @param int $itemsPerPage
-     * @param int $maximumNumberOfLinks
+     * @param QueryResultInterface<int, DomainObjectInterface> $items
      */
-    protected function assignPagination($items, int $itemsPerPage = 10, int $maximumNumberOfLinks = 5): void
-    {
-        $currentPage = $this->request->hasArgument('currentPage') ? (int)$this->request->getArgument('currentPage') : 1;
+    protected function assignPagination(
+        QueryResultInterface $items,
+        int $itemsPerPage = 10,
+        int $maximumNumberOfLinks = 5
+    ): void {
+        $currentPage = 1;
+        if ($this->request->hasArgument('currentPage')) {
+            $currentPageArgument = $this->request->getArgument('currentPage');
+            if (is_numeric($currentPageArgument)) {
+                $currentPage = max(1, (int)$currentPageArgument);
+            }
+        }
 
         $paginator = new QueryResultPaginator(
             $items,

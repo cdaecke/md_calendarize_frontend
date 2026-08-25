@@ -3,6 +3,6 @@
 #
 CREATE TABLE tx_calendarize_domain_model_event (
 
-    md_user int(11) DEFAULT '0' NOT NULL,
+    md_user int unsigned DEFAULT 0 NOT NULL,
 
 );

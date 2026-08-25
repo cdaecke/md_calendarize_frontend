@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Mediadreams\MdCalendarizeFrontend\Controller;
@@ -13,20 +14,15 @@ namespace Mediadreams\MdCalendarizeFrontend\Controller;
  *  (c) 2020 Christoph Daecke <typo3@mediadreams.org>
  *
  ***/
-use Mediadreams\MdCalendarizeFrontend\Validator\EventValidator;
 use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
-use Mediadreams\MdCalendarizeFrontend\Helper\SlugHelper;
+use Mediadreams\MdCalendarizeFrontend\Validator\EventValidator;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Attribute\IgnoreValidation;
 use TYPO3\CMS\Extbase\Attribute\Validate;
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
-use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
  * Class EventController
- * @package Mediadreams\MdCalendarizeFrontend\Controller
  */
 class EventController extends EventBaseController
 {
@@ -94,21 +90,18 @@ class EventController extends EventBaseController
 
         $this->eventRepository->add($event);
 
-        // persist data in order to get insert id
-        $persistenceManager = GeneralUtility::makeInstance(PersistenceManager::class);
-        $persistenceManager->persistAll();
+        // Persist first so UID and PID are available for slug generation.
+        $this->persistenceManager->persistAll();
 
-        /** @var SlugHelper $slugHelper */
-        $slugHelper = GeneralUtility::makeInstance(SlugHelper::class);
-        $slug = $slugHelper->getSlug($event, ['title' => $event->getTitle()], 'tx_calendarize_domain_model_event');
+        $slug = $this->slugHelper->getSlug($event, ['title' => $event->getTitle()], 'tx_calendarize_domain_model_event');
         $event->setSlug($slug);
 
         $this->eventRepository->update($event);
 
-        $this->setIndexObjects($event);
+        $this->synchronizeIndex($event);
 
         $this->addFlashMessage(
-            LocalizationUtility::translate('controller.created', 'md_calendarize_frontend'),
+            $this->translate('controller.created'),
             '',
             ContextualFeedbackSeverity::OK
         );
@@ -144,26 +137,12 @@ class EventController extends EventBaseController
             return $response;
         }
 
-        foreach ($event->getCalendarize() as $item) {
-            if (!$item->getStartTime()) {
-                $item->setStartTime(0);
-            }
-
-            if (!$item->getEndTime()) {
-                $item->setEndTime(0);
-            }
-        }
-
         $this->eventRepository->update($event);
 
-        // delete index objects
-        $this->deleteIndexOfEvent($event->getUid());
-
-        // write index objects
-        $this->setIndexObjects($event);
+        $this->synchronizeIndex($event);
 
         $this->addFlashMessage(
-            LocalizationUtility::translate('controller.updated', 'md_calendarize_frontend'),
+            $this->translate('controller.updated'),
             '',
             ContextualFeedbackSeverity::OK
         );
@@ -184,13 +163,13 @@ class EventController extends EventBaseController
         }
 
         // delete index objects
-        $this->deleteIndexOfEvent($event->getUid());
+        $this->deleteIndexOfEvent($this->getEventUid($event));
 
         // delete event
         $this->eventRepository->remove($event);
 
         $this->addFlashMessage(
-            LocalizationUtility::translate('controller.deleted', 'md_calendarize_frontend'),
+            $this->translate('controller.deleted'),
             '',
             ContextualFeedbackSeverity::OK
         );
