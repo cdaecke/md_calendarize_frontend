@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff
+    xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+    <file source-language="en" datatype="plaintext" original="EXT:md_calendarize_frontend/Configuration/Sets/MdCalendarizeFrontend/labels.xlf" date="2026-08-25T00:00:00Z" product-name="md_calendarize_frontend">
+        <header/>
+        <body>
+            <trans-unit id="label" resname="label">
+                <source>Calendarize frontend</source>
+            </trans-unit>
+            <trans-unit id="categories.md_calendarize_frontend" resname="categories.md_calendarize_frontend">
+                <source>Calendarize frontend</source>
+            </trans-unit>
+            <trans-unit id="categories.description.md_calendarize_frontend" resname="categories.description.md_calendarize_frontend">
+                <source>Settings for the Calendarize frontend extension</source>
+            </trans-unit>
+            <trans-unit id="categories.md_calendarize_frontend.templates" resname="categories.md_calendarize_frontend.templates">
+                <source>Templates</source>
+            </trans-unit>
+            <trans-unit id="categories.description.md_calendarize_frontend.templates" resname="categories.description.md_calendarize_frontend.templates">
+                <source>Paths for custom Fluid templates, partials and layouts</source>
+            </trans-unit>
+            <trans-unit id="settings.md_calendarize_frontend.view.templateRootPath" resname="settings.md_calendarize_frontend.view.templateRootPath">
+                <source>Template root path</source>
+            </trans-unit>
+            <trans-unit id="settings.description.md_calendarize_frontend.view.templateRootPath" resname="settings.description.md_calendarize_frontend.view.templateRootPath">
+                <source>Path to custom Fluid templates for the extension</source>
+            </trans-unit>
+            <trans-unit id="settings.md_calendarize_frontend.view.partialRootPath" resname="settings.md_calendarize_frontend.view.partialRootPath">
+                <source>Partial root path</source>
+            </trans-unit>
+            <trans-unit id="settings.description.md_calendarize_frontend.view.partialRootPath" resname="settings.description.md_calendarize_frontend.view.partialRootPath">
+                <source>Path to custom Fluid partials for the extension</source>
+            </trans-unit>
+            <trans-unit id="settings.md_calendarize_frontend.view.layoutRootPath" resname="settings.md_calendarize_frontend.view.layoutRootPath">
+                <source>Layout root path</source>
+            </trans-unit>
+            <trans-unit id="settings.description.md_calendarize_frontend.view.layoutRootPath" resname="settings.description.md_calendarize_frontend.view.layoutRootPath">
+                <source>Path to custom Fluid layouts for the extension</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

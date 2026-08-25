@@ -1,0 +1,17 @@
+categories:
+  md_calendarize_frontend: ~
+  md_calendarize_frontend.templates:
+    parent: md_calendarize_frontend
+settings:
+  md_calendarize_frontend.view.templateRootPath:
+    default: 'EXT:md_calendarize_frontend/Resources/Private/Templates/'
+    type: string
+    category: md_calendarize_frontend.templates
+  md_calendarize_frontend.view.partialRootPath:
+    default: 'EXT:md_calendarize_frontend/Resources/Private/Partials/'
+    type: string
+    category: md_calendarize_frontend.templates
+  md_calendarize_frontend.view.layoutRootPath:
+    default: 'EXT:md_calendarize_frontend/Resources/Private/Layouts/'
+    type: string
+    category: md_calendarize_frontend.templates

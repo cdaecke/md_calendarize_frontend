@@ -1,0 +1,8 @@
+@import 'EXT:md_calendarize_frontend/Configuration/TypoScript/constants.typoscript'
+
+# Map site settings to the legacy constants consumed by the shared TypoScript setup.
+plugin.tx_mdcalendarizefrontend_frontend.view {
+  templateRootPath = {$md_calendarize_frontend.view.templateRootPath}
+  partialRootPath = {$md_calendarize_frontend.view.partialRootPath}
+  layoutRootPath = {$md_calendarize_frontend.view.layoutRootPath}
+}
