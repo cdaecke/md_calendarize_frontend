@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Mediadreams\MdCalendarizeFrontend\Controller;
@@ -13,7 +14,6 @@ namespace Mediadreams\MdCalendarizeFrontend\Controller;
  *  (c) 2020 Christoph Daecke <typo3@mediadreams.org>
  *
  ***/
-use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
 use GeorgRinger\NumberedPagination\NumberedPagination;
 use HDNET\Calendarize\Domain\Model\Index;
 use HDNET\Calendarize\Domain\Repository\IndexRepository;
@@ -30,15 +30,18 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
 use TYPO3\CMS\Extbase\Pagination\QueryResultPaginator;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
+use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
+use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface;
 use TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter;
+use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 
 /**
  * Class EventBaseController
- * @package Mediadreams\MdCalendarizeFrontend\Controller
  */
 class EventBaseController extends ActionController
 {
@@ -85,6 +88,7 @@ class EventBaseController extends ActionController
         IndexRepository $indexRepository,
         SlugService $slugService,
         protected readonly FrontendUserRepository $frontendUserRepository,
+        protected readonly TimestampConverter $timestampConverter,
     ) {
         $this->eventRepository = $eventRepository;
         $this->indexRepository = $indexRepository;
@@ -117,7 +121,7 @@ class EventBaseController extends ActionController
 
         $this->view->assignMultiple([
             'feUser' => $this->feUser,
-            'contentObjectData' => $this->request->getAttribute('currentContentObject')->data
+            'contentObjectData' => $this->request->getAttribute('currentContentObject')->data,
         ]);
 
         if (is_object($this->request->getAttribute('frontend.controller'))) {
@@ -161,8 +165,8 @@ class EventBaseController extends ActionController
                 (
                     $args['action'] === 'create'
                     || $args['action'] === 'update'
-                ) &&
-                isset($args['event']['calendarize'])
+                )
+                && isset($args['event']['calendarize'])
             ) {
                 // property mapper configuration
                 $propertyMappingConfiguration = $this->arguments['event']
@@ -170,29 +174,52 @@ class EventBaseController extends ActionController
                     ->getConfigurationFor('calendarize');
 
                 foreach ($args['event']['calendarize'] as $key => $items) {
-                    $propertyMappingConfiguration->allowProperties($key);
-                    $propertyMappingConfiguration->allowProperties($key . '.*')->allowAllProperties();
-                    $propertyMappingConfiguration->forProperty($key)->allowAllProperties();
-                    $propertyMappingConfiguration->forProperty($key . '.*')->allowAllProperties();
-                    $propertyMappingConfiguration->forProperty($key)->setTypeConverterOption(
+                    if (!is_array($items)) {
+                        continue;
+                    }
+
+                    $itemKey = (string)$key;
+                    if ($itemKey === '') {
+                        continue;
+                    }
+                    $propertyMappingConfiguration->allowProperties($itemKey);
+                    $itemConfiguration = $propertyMappingConfiguration->forProperty($itemKey);
+                    $itemConfiguration->allowProperties(
+                        '__identity',
+                        'startDate',
+                        'endDate',
+                        'startTime',
+                        'endTime',
+                        'openEndTime',
+                        'allDay',
+                        'type',
+                        'handling',
+                        'state',
+                        'day',
+                    );
+                    $itemConfiguration->setTypeConverterOption(
                         PersistentObjectConverter::class,
                         PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED,
                         true
                     );
 
-                    if ($items['startTime'] == '') {
+                    $startTime = $items['startTime'] ?? '';
+                    $endTime = $items['endTime'] ?? '';
+                    if ($startTime === '') {
                         $args['event']['calendarize'][$key]['startTime'] = 0;
                     }
 
-                    if ($items['endTime'] == '') {
+                    if ($endTime === '') {
                         $args['event']['calendarize'][$key]['endTime'] = 0;
                     }
 
-                    $this->request->getAttributes()['extbase']->setArguments($args);
+                    $extbaseRequestParameters = $this->request->getAttribute('extbase');
+                    if ($extbaseRequestParameters instanceof ExtbaseRequestParameters) {
+                        $extbaseRequestParameters->setArguments($args);
+                    }
 
                     // set configuration for date
-                    $propertyMappingConfiguration
-                        ->getConfigurationFor($key)
+                    $itemConfiguration
                         ->forProperty('startDate')
                         ->setTypeConverterOption(
                             DateTimeConverter::class,
@@ -200,8 +227,7 @@ class EventBaseController extends ActionController
                             $this->settings['dateFormat']
                         );
 
-                    $propertyMappingConfiguration
-                        ->getConfigurationFor($key)
+                    $itemConfiguration
                         ->forProperty('endDate')
                         ->setTypeConverterOption(
                             DateTimeConverter::class,
@@ -209,47 +235,40 @@ class EventBaseController extends ActionController
                             $this->settings['dateFormat']
                         );
 
-                    $propertyMappingConfiguration
-                        ->getConfigurationFor($key)
-                        ->forProperty('endDate')
-                        ->setTypeConverterOption(
-                            DateTimeConverter::class,
-                            DateTimeConverter::CONFIGURATION_DATE_FORMAT,
-                            $this->settings['dateFormat']
-                        );
-
-                    if ($items['startTime'] != '') {
-                        $propertyMappingConfiguration
-                            ->getConfigurationFor($key)
-                            ->forProperty('startTime')
-                            ->setTypeConverter(GeneralUtility::makeInstance(TimestampConverter::class))
-                            ->setTypeConverterOption(
-                                TimestampConverter::class,
-                                TimestampConverter::CONFIGURATION_DATE_FORMAT,
-                                $this->settings['timeFormat']
-                            );
+                    if ($startTime !== '') {
+                        $this->configureTimestampConverter($itemConfiguration->forProperty('startTime'));
                     }
 
-                    if ($items['endTime'] != '') {
-                        $propertyMappingConfiguration
-                            ->getConfigurationFor($key)
-                            ->forProperty('endTime')
-                            ->setTypeConverter(GeneralUtility::makeInstance(TimestampConverter::class))
-                            ->setTypeConverterOption(
-                                TimestampConverter::class,
-                                TimestampConverter::CONFIGURATION_DATE_FORMAT,
-                                $this->settings['timeFormat']
-                            );
+                    if ($endTime !== '') {
+                        $this->configureTimestampConverter($itemConfiguration->forProperty('endTime'));
                     }
                 }
             } else {
                 if ($args['action'] === 'update' && isset($args['event'])) {
                     // no "calendarize" item was provided -> remove all
                     $args['event']['calendarize'] = null;
-                    $this->request->getAttributes()['extbase']->setArguments($args);
+                    $extbaseRequestParameters = $this->request->getAttribute('extbase');
+                    if ($extbaseRequestParameters instanceof ExtbaseRequestParameters) {
+                        $extbaseRequestParameters->setArguments($args);
+                    }
                 }
             }
         }
+    }
+
+    private function configureTimestampConverter(PropertyMappingConfigurationInterface $configuration): void
+    {
+        if (!$configuration instanceof PropertyMappingConfiguration) {
+            throw new \LogicException('Expected a concrete property mapping configuration.', 1787654591);
+        }
+
+        $configuration
+            ->setTypeConverter($this->timestampConverter)
+            ->setTypeConverterOption(
+                TimestampConverter::class,
+                TimestampConverter::CONFIGURATION_DATE_FORMAT,
+                $this->settings['timeFormat']
+            );
     }
 
     /**
@@ -384,7 +403,6 @@ class EventBaseController extends ActionController
 
         return $arr;
     }
-
 
     /**
      * Get a camel case string decamelized, eg. "startDate" will become "start_date"
