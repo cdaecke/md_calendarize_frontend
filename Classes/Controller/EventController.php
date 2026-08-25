@@ -86,6 +86,19 @@ class EventController extends EventBaseController
             return $this->redirect('accessDenied');
         }
 
+        if (!$event->_isNew()) {
+            // Extbase resolves an "event[__identity]" argument to an existing record
+            // regardless of allowed properties; without this guard, submitting the
+            // identity of someone else's event here would reassign its ownership.
+            $this->addFlashMessage(
+                $this->translate('controller.access_error'),
+                '',
+                ContextualFeedbackSeverity::ERROR
+            );
+
+            return $this->redirect('list');
+        }
+
         $event->setMdUser($this->frontendUser);
 
         $this->eventRepository->add($event);

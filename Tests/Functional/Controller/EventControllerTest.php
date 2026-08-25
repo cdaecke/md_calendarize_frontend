@@ -149,6 +149,24 @@ final class EventControllerTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function createActionRejectsAlreadyPersistedEventToPreventOwnershipTakeover(): void
+    {
+        $this->importCSVDataSet(__DIR__ . '/Fixtures/Database/EventController/EventOwnedByOtherUser.csv');
+
+        // A bare scalar "event" argument resolves straight to the existing record by
+        // identity - no __trustedProperties needed, same as deleteAction's single-identity
+        // argument. This is the actual shape of the exploit, not a full property submission.
+        $response = $this->executeRequestWithLoggedInUser([
+            self::PLUGIN_NAMESPACE . '[action]' => 'create',
+            self::PLUGIN_NAMESPACE . '[controller]' => 'Event',
+            self::PLUGIN_NAMESPACE . '[event]' => (string)self::UID_OF_OTHER_EVENT,
+        ]);
+
+        self::assertRedirectsToListAction($response);
+        $this->assertCSVDataSet(__DIR__ . '/Fixtures/Assertions/EventController/Create/EventUnchangedAfterRejectedCreateHijack.csv');
+    }
+
+    #[Test]
     public function updateActionPersistsNewTitleAndLeavesOwnerAndPidUnchanged(): void
     {
         $this->importCSVDataSet(__DIR__ . '/Fixtures/Database/EventController/EventOwnedByLoggedInUser.csv');
