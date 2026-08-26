@@ -1,3 +1,16 @@
+Version 5.0.0 (2026-08-26)
+    [FEATURE] Compatibility with TYPO3 v14
+    [FEATURE] add Tests
+
+    [BREAKING] Raise dependencies to `typo3/cms-core: ^14.3` and `lochmueller/calendarize: ^15.0`
+    [BREAKING] `deleteAction` now only accepts POST requests; a GET request is rejected and redirected back to the list. <br>**Any sitepackage overriding this template must do the same** - a GET-based delete link will now silently redirect back to the list instead of deleting the event
+
+    Migration
+    - Any sitepackage overriding `Templates/Event/List.html` needs adapt the delete mechanism in the template - use a form with `post`-action instead of of a plain link!
+
+    All changes
+    https://github.com/cdaecke/md_calendarize_frontend/compare/4.0.0...5.0.0
+
 Version 4.0.0 (2025-02-12)
     [FEATURE] Compatibility with TYPO3 v13
 

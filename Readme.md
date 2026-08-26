@@ -6,28 +6,28 @@ Templates are ready to use with the [bootstrap framework](https://getbootstrap.c
 
 ## Requirements
 
-- TYPO3 >= v9.5, < v14
-- ext:calendarize >= v6.0 < v15.0
+- TYPO3 v14.3
+- ext:calendarize v15.0
 
 ## Installation
 
 - Install the extension by using the extension manager or use composer
 - Include the static TypoScript of the extension
 - Configure the extension by setting your own typoscript variables
-    - `dateFormat`: Format of date input fields (see [PHP date function](https://www.php.net/manual/de/function.date.php))
-    - `dateFormatPlaceholder`: Placeholder for date form fields
-    - `timeFormat`: Format of time input fields (see [PHP date function](https://www.php.net/manual/de/function.date.php))
-    - `timeFormatPlaceholder`: Placeholder for time fields
-    - `parentCategory`: If you want to use categories for your calendar entries, set the ID of the category which child items should be displayed
+  - `dateFormat`: Format of date input fields (see [PHP date function](https://www.php.net/manual/de/function.date.php))
+  - `dateFormatPlaceholder`: Placeholder for date form fields
+  - `timeFormat`: Format of time input fields (see [PHP date function](https://www.php.net/manual/de/function.date.php))
+  - `timeFormatPlaceholder`: Placeholder for time fields
+  - `parentCategory`: If you want to use categories for your calendar entries, set the ID of the category which child items should be displayed
 
 ## Usage
 
 - Add the pluign ``Calendarize frontend`` on a page, which is restricted by the frontend user login
 - Select a storage page in the configuration-tab in the field ``Startingpoint``
-- Make sure to include `jQuery` in the header of the website in order to get some magic in the template working
 - Now a frontend user is able to add, edit and delete own records
 
 ## Bugs and Known Issues
+
 If you find a bug, it would be nice if you add an issue on [Github](https://github.com/cdaecke/md_calendarize_frontend/issues).
 
 # THANKS

@@ -77,7 +77,7 @@
                 "providesPackages": {}
             },
             "extension-key": "md_calendarize_frontend",
-            "version": "4.0.0",
+            "version": "5.0.0",
             "web-dir": ".Build/public"
         }
     },
