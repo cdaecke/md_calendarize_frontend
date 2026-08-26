@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Mediadreams\MdCalendarizeFrontend\Controller;
@@ -13,18 +14,15 @@ namespace Mediadreams\MdCalendarizeFrontend\Controller;
  *  (c) 2020 Christoph Daecke <typo3@mediadreams.org>
  *
  ***/
-
 use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
-use Mediadreams\MdCalendarizeFrontend\Helper\SlugHelper;
+use Mediadreams\MdCalendarizeFrontend\Validator\EventValidator;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
-use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
+use TYPO3\CMS\Extbase\Attribute\IgnoreValidation;
+use TYPO3\CMS\Extbase\Attribute\Validate;
 
 /**
  * Class EventController
- * @package Mediadreams\MdCalendarizeFrontend\Controller
  */
 class EventController extends EventBaseController
 {
@@ -45,21 +43,19 @@ class EventController extends EventBaseController
      */
     public function listAction(): ResponseInterface
     {
-        if ($this->feuserUid === 0) {
+        if ($this->frontendUser === null) {
             return $this->redirect('accessDenied');
         }
 
-        if ($this->feuserUid > 0) {
-            $events = $this->eventRepository->findByMdUser($this->feuserUid);
+        $events = $this->eventRepository->findBy(['mdUser' => $this->frontendUser]);
 
-            $this->assignPagination(
-                $events,
-                (int)$this->settings['paginate']['itemsPerPage'],
-                (int)$this->settings['paginate']['maximumNumberOfLinks']
-            );
+        $this->assignPagination(
+            $events,
+            (int)$this->settings['paginate']['itemsPerPage'],
+            (int)$this->settings['paginate']['maximumNumberOfLinks']
+        );
 
-            $this->view->assign('events', $events);
-        }
+        $this->view->assign('events', $events);
 
         return $this->htmlResponse();
     }
@@ -71,7 +67,7 @@ class EventController extends EventBaseController
      */
     public function newAction(): ResponseInterface
     {
-        if ($this->feuserUid === 0) {
+        if ($this->frontendUser === null) {
             return $this->redirect('accessDenied');
         }
 
@@ -81,31 +77,48 @@ class EventController extends EventBaseController
     /**
      * action create
      *
-     * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $event
-     * @TYPO3\CMS\Extbase\Annotation\Validate("Mediadreams\MdCalendarizeFrontend\Validator\EventValidator", param="event")
+     * @param Event $event
      * @return ResponseInterface
      */
-    public function createAction(Event $event): ResponseInterface
+    public function createAction(#[Validate(EventValidator::class)] Event $event): ResponseInterface
     {
-        $event->setMdUser($this->feuserUid);
+        if ($this->frontendUser === null) {
+            return $this->redirect('accessDenied');
+        }
+
+        if (!$event->_isNew()) {
+            // Extbase resolves an "event[__identity]" argument to an existing record
+            // regardless of allowed properties; without this guard, submitting the
+            // identity of someone else's event here would reassign its ownership.
+            $this->addFlashMessage(
+                $this->translate('controller.access_error'),
+                '',
+                ContextualFeedbackSeverity::ERROR
+            );
+
+            return $this->redirect('list');
+        }
+
+        if (($response = $this->checkCalendarizeOwnership($event)) !== null) {
+            return $response;
+        }
+
+        $event->setMdUser($this->frontendUser);
 
         $this->eventRepository->add($event);
 
-        // persist data in order to get insert id
-        $persistenceManager = GeneralUtility::makeInstance(PersistenceManager::class);
-        $persistenceManager->persistAll();
+        // Persist first so UID and PID are available for slug generation.
+        $this->persistenceManager->persistAll();
 
-        /** @var SlugHelper $slugHelper */
-        $slugHelper = GeneralUtility::makeInstance(SlugHelper::class);
-        $slug = $slugHelper->getSlug($event, ['title' => $event->getTitle()], 'tx_calendarize_domain_model_event');
+        $slug = $this->slugHelper->getSlug($event, ['title' => $event->getTitle()], 'tx_calendarize_domain_model_event');
         $event->setSlug($slug);
 
         $this->eventRepository->update($event);
 
-        $this->setIndexObjects($event);
+        $this->synchronizeIndex($event);
 
         $this->addFlashMessage(
-            LocalizationUtility::translate('controller.created', 'md_calendarize_frontend'),
+            $this->translate('controller.created'),
             '',
             ContextualFeedbackSeverity::OK
         );
@@ -116,13 +129,14 @@ class EventController extends EventBaseController
     /**
      * action edit
      *
-     * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $event
-     * @TYPO3\CMS\Extbase\Annotation\IgnoreValidation("event")
+     * @param Event $event
      * @return ResponseInterface
      */
-    public function editAction(Event $event): ResponseInterface
+    public function editAction(#[IgnoreValidation] Event $event): ResponseInterface
     {
-        $this->checkAccess($event);
+        if (($response = $this->checkAccess($event)) !== null) {
+            return $response;
+        }
         $this->view->assign('event', $event);
 
         return $this->htmlResponse();
@@ -131,34 +145,25 @@ class EventController extends EventBaseController
     /**
      * action update
      *
-     * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $event
-     * @TYPO3\CMS\Extbase\Annotation\Validate("Mediadreams\MdCalendarizeFrontend\Validator\EventValidator", param="event")
+     * @param Event $event
      * @return ResponseInterface
      */
-    public function updateAction(Event $event): ResponseInterface
+    public function updateAction(#[Validate(EventValidator::class)] Event $event): ResponseInterface
     {
-        $this->checkAccess($event);
+        if (($response = $this->checkAccess($event)) !== null) {
+            return $response;
+        }
 
-        foreach ($event->getCalendarize() as $item) {
-            if (!$item->getStartTime()) {
-                $item->setStartTime(0);
-            }
-
-            if (!$item->getEndTime()) {
-                $item->setEndTime(0);
-            }
+        if (($response = $this->checkCalendarizeOwnership($event)) !== null) {
+            return $response;
         }
 
         $this->eventRepository->update($event);
 
-        // delete index objects
-        $this->deleteIndexOfEvent($event->getUid());
-
-        // write index objects
-        $this->setIndexObjects($event);
+        $this->synchronizeIndex($event);
 
         $this->addFlashMessage(
-            LocalizationUtility::translate('controller.updated', 'md_calendarize_frontend'),
+            $this->translate('controller.updated'),
             '',
             ContextualFeedbackSeverity::OK
         );
@@ -169,21 +174,36 @@ class EventController extends EventBaseController
     /**
      * action delete
      *
-     * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $event
+     * @param Event $event
      * @return ResponseInterface
      */
     public function deleteAction(Event $event): ResponseInterface
     {
-        $this->checkAccess($event);
+        if ($this->request->getMethod() !== 'POST') {
+            // Deleting is destructive and must not be reachable via a plain link: a GET
+            // request can be triggered cross-site (e.g. via a redirecting page) and would
+            // ride along the visitor's session cookie under SameSite=Lax.
+            $this->addFlashMessage(
+                $this->translate('controller.access_error'),
+                '',
+                ContextualFeedbackSeverity::ERROR
+            );
+
+            return $this->redirect('list');
+        }
+
+        if (($response = $this->checkAccess($event)) !== null) {
+            return $response;
+        }
 
         // delete index objects
-        $this->deleteIndexOfEvent($event->getUid());
+        $this->deleteIndexOfEvent($this->getEventUid($event));
 
         // delete event
         $this->eventRepository->remove($event);
 
         $this->addFlashMessage(
-            LocalizationUtility::translate('controller.deleted', 'md_calendarize_frontend'),
+            $this->translate('controller.deleted'),
             '',
             ContextualFeedbackSeverity::OK
         );

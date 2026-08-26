@@ -1,7 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Mediadreams\MdCalendarizeFrontend\Domain\Model;
+
+use HDNET\Calendarize\Domain\Model\Configuration;
 
 /***
  *
@@ -13,26 +16,24 @@ namespace Mediadreams\MdCalendarizeFrontend\Domain\Model;
  *  (c) 2020 Christoph Daecke <typo3@mediadreams.org>
  *
  ***/
-
 /**
  * Class Event
- * @package Mediadreams\MdCalendarizeFrontend\Domain\Model
  */
 class Event extends \HDNET\Calendarize\Domain\Model\Event
 {
     /**
      * Frontend user, who created this entry
      *
-     * @var \Mediadreams\MdCalendarizeFrontend\Domain\Model\FrontendUser
+     * @var FrontendUser|null
      */
-    protected $mdUser = null;
+    protected ?FrontendUser $mdUser = null;
 
     /**
      * Returns the mdUser
      *
-     * @return \Mediadreams\MdCalendarizeFrontend\Domain\Model\FrontendUser $mdUser
+     * @return FrontendUser|null
      */
-    public function getMdUser()
+    public function getMdUser(): ?FrontendUser
     {
         return $this->mdUser;
     }
@@ -40,27 +41,19 @@ class Event extends \HDNET\Calendarize\Domain\Model\Event
     /**
      * Sets the mdUser
      *
-     * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\FrontendUser $mdUser
-     * @return void
+     * @param FrontendUser $mdUser
      */
-    public function setMdUser($mdUser)
+    public function setMdUser(FrontendUser $mdUser): void
     {
         $this->mdUser = $mdUser;
     }
 
-    /**
-     * Get first calendarize item.
-     *
-     * @return \TYPO3\CMS\Extbase\Persistence\ObjectStorage|null
-     */
-    public function getFirstCalendarize()
+    public function getFirstCalendarize(): ?Configuration
     {
-        $calendarize = $this->getCalendarize();
-        if (!is_null($calendarize)) {
-            $calendarize->rewind();
-            return $calendarize->current();
-        } else {
-            return null;
+        foreach ($this->getCalendarize() as $configuration) {
+            return $configuration;
         }
+
+        return null;
     }
 }

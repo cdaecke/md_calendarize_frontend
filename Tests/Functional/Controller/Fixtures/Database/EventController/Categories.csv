@@ -1,0 +1,6 @@
+"sys_category"
+,"uid","pid","title","parent","sorting"
+,10,1,"Parent Category",0,0
+,11,1,"Child Category One",10,20
+,12,1,"Child Category Two",10,10
+,13,1,"Unrelated Category",0,0

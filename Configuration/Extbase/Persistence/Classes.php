@@ -1,20 +1,25 @@
 <?php
 declare(strict_types=1);
 
+use Mediadreams\MdCalendarizeFrontend\Domain\Model\Category;
+use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
+use Mediadreams\MdCalendarizeFrontend\Domain\Model\FrontendUser;
+use Mediadreams\MdCalendarizeFrontend\Domain\Model\FrontendUserGroup;
+
 return [
-    \Mediadreams\MdCalendarizeFrontend\Domain\Model\Category::class => [
+    Category::class => [
         'tableName' => 'sys_category',
     ],
 
-    \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event::class => [
+    Event::class => [
         'tableName' => 'tx_calendarize_domain_model_event',
     ],
 
-    \Mediadreams\MdCalendarizeFrontend\Domain\Model\FrontendUser::class => [
+    FrontendUser::class => [
         'tableName' => 'fe_users',
     ],
 
-    \Mediadreams\MdCalendarizeFrontend\Domain\Model\FrontendUserGroup::class => [
+    FrontendUserGroup::class => [
         'tableName' => 'fe_groups',
     ],
 ];

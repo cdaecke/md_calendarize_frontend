@@ -1,0 +1,19 @@
+parameters:
+  level: 9
+
+  phpVersion:
+    min: 80200
+    max: 80599
+
+  paths:
+    - ../../Classes
+    - ../../Configuration
+    - ../../Tests
+    - ../../ext_localconf.php
+
+  excludePaths:
+    analyse:
+      - ../../.Build
+
+  reportUnmatchedIgnoredErrors: true
+  treatPhpDocTypesAsCertain: false

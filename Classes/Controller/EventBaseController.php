@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Mediadreams\MdCalendarizeFrontend\Controller;
@@ -13,33 +14,42 @@ namespace Mediadreams\MdCalendarizeFrontend\Controller;
  *  (c) 2020 Christoph Daecke <typo3@mediadreams.org>
  *
  ***/
-
-use GeorgRinger\NumberedPagination\NumberedPagination;
-use HDNET\Calendarize\Domain\Model\Index;
-use HDNET\Calendarize\Domain\Repository\IndexRepository;
-use HDNET\Calendarize\Service\Url\SlugService;
+use HDNET\Calendarize\Domain\Model\Configuration;
+use HDNET\Calendarize\Domain\Repository\RawIndexRepository;
+use HDNET\Calendarize\Service\IndexerService;
 use Mediadreams\MdCalendarizeFrontend\Domain\Model\Event;
+use Mediadreams\MdCalendarizeFrontend\Domain\Model\FrontendUser;
 use Mediadreams\MdCalendarizeFrontend\Domain\Repository\CategoryRepository;
 use Mediadreams\MdCalendarizeFrontend\Domain\Repository\EventRepository;
-use Mediadreams\MdCalendarizeFrontend\Property\TypeConverter\TimestampConverter;
-use TYPO3\CMS\Core\Database\Connection;
-use TYPO3\CMS\Core\Database\ConnectionPool;
+use Mediadreams\MdCalendarizeFrontend\Domain\Repository\FrontendUserRepository;
+use Mediadreams\MdCalendarizeFrontend\Helper\SlugHelper;
+use Mediadreams\MdCalendarizeFrontend\Property\EventArgumentPropertyMappingConfigurator;
+use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Core\Pagination\PaginatorInterface;
+use TYPO3\CMS\Core\Pagination\SlidingWindowPagination;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
 use TYPO3\CMS\Extbase\Pagination\QueryResultPaginator;
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
-use TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter;
+use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
+use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
+use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3\CMS\Frontend\Page\PageInformation;
 
 /**
  * Class EventBaseController
- * @package Mediadreams\MdCalendarizeFrontend\Controller
  */
 class EventBaseController extends ActionController
 {
+    private const EVENT_REGISTER_KEY = 'Event';
+    private const EVENT_TABLE = 'tx_calendarize_domain_model_event';
+
     /**
-     * @var array FeUser array
+     * @var array<string, mixed> FeUser array
      */
     protected array $feUser = [];
 
@@ -47,41 +57,19 @@ class EventBaseController extends ActionController
      * @var int FeUser Uid
      */
     protected int $feuserUid = 0;
-    /**
-     * eventRepository
-     *
-     * @var EventRepository|null
-     */
-    protected ?EventRepository $eventRepository = null;
 
-    /**
-     * indexRepository
-     *
-     * @var IndexRepository|null
-     */
-    protected ?IndexRepository $indexRepository = null;
+    protected ?FrontendUser $frontendUser = null;
 
-    /**
-     * @var SlugService|null
-     */
-    protected ?SlugService $slugService = null;
-
-    /**
-     * EventBaseController constructor
-     *
-     * @param EventRepository $eventRepository
-     * @param IndexRepository $indexRepository
-     * @param SlugService $slugService
-     */
     public function __construct(
-        EventRepository $eventRepository,
-        IndexRepository $indexRepository,
-        SlugService $slugService
-    ) {
-        $this->eventRepository = $eventRepository;
-        $this->indexRepository = $indexRepository;
-        $this->slugService = $slugService;
-    }
+        protected readonly EventRepository $eventRepository,
+        protected readonly FrontendUserRepository $frontendUserRepository,
+        protected readonly CategoryRepository $categoryRepository,
+        protected readonly EventArgumentPropertyMappingConfigurator $eventArgumentPropertyMappingConfigurator,
+        protected readonly PersistenceManagerInterface $persistenceManager,
+        protected readonly SlugHelper $slugHelper,
+        private readonly IndexerService $indexerService,
+        private readonly RawIndexRepository $rawIndexRepository,
+    ) {}
 
     /**
      * Deactivate errorFlashMessage
@@ -101,24 +89,25 @@ class EventBaseController extends ActionController
         // check if TypoScript is loaded
         if (!isset($this->settings['dateFormat'])) {
             $this->addFlashMessage(
-                LocalizationUtility::translate('controller.typoscript_missing', 'md_calendarize_frontend'),
+                $this->translate('controller.typoscript_missing'),
                 '',
                 ContextualFeedbackSeverity::ERROR
             );
         }
 
-        $this->view->assignMultiple([
-            'feUser' => $this->feUser,
-            'contentObjectData' => $this->request->getAttribute('currentContentObject')->data
-        ]);
+        $currentContentObject = $this->request->getAttribute('currentContentObject');
+        $this->view->assign('feUser', $this->feUser);
+        if ($currentContentObject instanceof ContentObjectRenderer) {
+            $this->view->assign('contentObjectData', $currentContentObject->data);
+        }
 
-        if (is_object($this->request->getAttribute('frontend.controller'))) {
-            $this->view->assign('pageData', $this->request->getAttribute('frontend.page.information')->getPageRecord());
+        $pageInformation = $this->request->getAttribute('frontend.page.information');
+        if ($pageInformation instanceof PageInformation) {
+            $this->view->assign('pageData', $pageInformation->getPageRecord());
         }
 
         if (strlen($this->settings['parentCategory'] ?? '') > 0) {
-            $categoryRepository = GeneralUtility::makeInstance(CategoryRepository::class);
-            $categories = $categoryRepository->findByParent($this->settings['parentCategory']);
+            $categories = $this->categoryRepository->findBy(['parent' => $this->settings['parentCategory']]);
 
             // Assign categories to template
             $this->view->assign('categories', $categories);
@@ -132,103 +121,39 @@ class EventBaseController extends ActionController
     {
         parent::initializeAction();
 
-        $this->feuserUid = $this->request->getAttribute('frontend.user')->user['uid'] ?? 0;
-
-        if (isset($this->arguments['event'])) {
-            $args = $this->request->getArguments();
-
-            if (
-                (
-                    $args['action'] === 'create'
-                    || $args['action'] === 'update'
-                ) &&
-                isset($args['event']['calendarize'])
-            ) {
-                // property mapper configuration
-                $propertyMappingConfiguration = $this->arguments['event']
-                    ->getPropertyMappingConfiguration()
-                    ->getConfigurationFor('calendarize');
-
-                foreach ($args['event']['calendarize'] as $key => $items) {
-                    $propertyMappingConfiguration->allowProperties($key);
-                    $propertyMappingConfiguration->allowProperties($key . '.*')->allowAllProperties();
-                    $propertyMappingConfiguration->forProperty($key)->allowAllProperties();
-                    $propertyMappingConfiguration->forProperty($key . '.*')->allowAllProperties();
-                    $propertyMappingConfiguration->forProperty($key)->setTypeConverterOption(
-                        'TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter',
-                        \TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED,
-                        true
-                    );
-
-                    if ($items['startTime'] == '') {
-                        $args['event']['calendarize'][$key]['startTime'] = 0;
-                    }
-
-                    if ($items['endTime'] == '') {
-                        $args['event']['calendarize'][$key]['endTime'] = 0;
-                    }
-
-                    $this->request->getAttributes()['extbase']->setArguments($args);
-
-                    // set configuration for date
-                    $propertyMappingConfiguration
-                        ->getConfigurationFor($key)
-                        ->forProperty('startDate')
-                        ->setTypeConverterOption(
-                            DateTimeConverter::class,
-                            DateTimeConverter::CONFIGURATION_DATE_FORMAT,
-                            $this->settings['dateFormat']
-                        );
-
-                    $propertyMappingConfiguration
-                        ->getConfigurationFor($key)
-                        ->forProperty('endDate')
-                        ->setTypeConverterOption(
-                            DateTimeConverter::class,
-                            DateTimeConverter::CONFIGURATION_DATE_FORMAT,
-                            $this->settings['dateFormat']
-                        );
-
-                    $propertyMappingConfiguration
-                        ->getConfigurationFor($key)
-                        ->forProperty('endDate')
-                        ->setTypeConverterOption(
-                            DateTimeConverter::class,
-                            DateTimeConverter::CONFIGURATION_DATE_FORMAT,
-                            $this->settings['dateFormat']
-                        );
-
-                    if ($items['startTime'] != '') {
-                        $propertyMappingConfiguration
-                            ->getConfigurationFor($key)
-                            ->forProperty('startTime')
-                            ->setTypeConverter(GeneralUtility::makeInstance(TimestampConverter::class))
-                            ->setTypeConverterOption(
-                                TimestampConverter::class,
-                                TimestampConverter::CONFIGURATION_DATE_FORMAT,
-                                $this->settings['timeFormat']
-                            );
-                    }
-
-                    if ($items['endTime'] != '') {
-                        $propertyMappingConfiguration
-                            ->getConfigurationFor($key)
-                            ->forProperty('endTime')
-                            ->setTypeConverter(GeneralUtility::makeInstance(TimestampConverter::class))
-                            ->setTypeConverterOption(
-                                TimestampConverter::class,
-                                TimestampConverter::CONFIGURATION_DATE_FORMAT,
-                                $this->settings['timeFormat']
-                            );
-                    }
-                }
-            } else {
-                if ($args['action'] === 'update' && isset($args['event'])) {
-                    // no "calendarize" item was provided -> remove all
-                    $args['event']['calendarize'] = null;
-                    $this->request->getAttributes()['extbase']->setArguments($args);
-                }
+        $frontendUserAuthentication = $this->request->getAttribute('frontend.user');
+        $this->feUser = $frontendUserAuthentication instanceof FrontendUserAuthentication
+            && is_array($frontendUserAuthentication->user)
+            ? $frontendUserAuthentication->user
+            : [];
+        $this->feuserUid = (int)($this->feUser['uid'] ?? 0);
+        if ($this->feuserUid > 0) {
+            $frontendUser = $this->frontendUserRepository->findByIdentifier($this->feuserUid);
+            if ($frontendUser instanceof FrontendUser) {
+                $this->frontendUser = $frontendUser;
             }
+        }
+
+        if (!isset($this->arguments['event'])) {
+            return;
+        }
+
+        $args = $this->request->getArguments();
+        if (!is_array($args['event'] ?? null)) {
+            return;
+        }
+
+        $args['event'] = $this->eventArgumentPropertyMappingConfigurator->configure(
+            $this->arguments['event']->getPropertyMappingConfiguration(),
+            (string)($args['action'] ?? ''),
+            $args['event'],
+            (string)($this->settings['dateFormat'] ?? ''),
+            (string)($this->settings['timeFormat'] ?? ''),
+        );
+
+        $extbaseRequestParameters = $this->request->getAttribute('extbase');
+        if ($extbaseRequestParameters instanceof ExtbaseRequestParameters) {
+            $extbaseRequestParameters->setArguments($args);
         }
     }
 
@@ -236,173 +161,137 @@ class EventBaseController extends ActionController
      * Check, if record belongs to user
      * If record does not belong to user, redirect to list action
      *
-     * @param \Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $record
-     * @return void
+     * @param Event $record
+     * @return ResponseInterface|null
      */
-    protected function checkAccess(\Mediadreams\MdCalendarizeFrontend\Domain\Model\Event $record)
+    protected function checkAccess(Event $record): ?ResponseInterface
     {
-        if ($record->getMdUser()->getUid() != $this->feuserUid) {
+        if ($this->frontendUser === null || $record->getMdUser()?->getUid() !== $this->frontendUser->getUid()) {
             $this->addFlashMessage(
-                LocalizationUtility::translate('controller.access_error', 'md_calendarize_frontend'),
+                $this->translate('controller.access_error'),
                 '',
                 ContextualFeedbackSeverity::ERROR
             );
 
-            $this->redirect('list');
+            return $this->redirect('list');
         }
+
+        return null;
     }
 
     /**
-     * Set data for index repository
+     * Reject calendarize items that reference a Configuration the event did not already
+     * own before this request. The property mapper resolves a submitted "__identity" by
+     * uid alone, regardless of the allow-list, so without this check a calendarize
+     * sub-item could point at any Configuration record in the installation.
      *
-     * @param Event $event The event object
+     * @return ResponseInterface|null
      */
-    protected function setIndexObjects(Event $event): void
+    protected function checkCalendarizeOwnership(Event $event): ?ResponseInterface
     {
-        // Generate slug
-        $neededItems = [];
-        foreach ($event->getCalendarize() as $key => $item) {
-            $itemKey = ['key' => $key];
-            $neededItems[] = array_merge($this->objectToArray($item), $itemKey);
+        $ownUids = [];
+        $cleanCalendarize = $event->_getCleanProperty('calendarize');
+        if ($cleanCalendarize instanceof ObjectStorage) {
+            /** @var ObjectStorage<Configuration> $cleanCalendarize */
+            foreach ($cleanCalendarize as $configuration) {
+                $uid = $configuration->getUid();
+                if ($uid !== null) {
+                    $ownUids[] = $uid;
+                }
+            }
         }
 
-        $slugs = $this->slugService->generateSlugForItems(
-            'Event',
-            $this->objectToArray($event),
-            $neededItems
-        );
+        foreach ($event->getCalendarize() as $configuration) {
+            $uid = $configuration->getUid();
+            if ($uid !== null && !in_array($uid, $ownUids, true)) {
+                $this->addFlashMessage(
+                    $this->translate('controller.access_error'),
+                    '',
+                    ContextualFeedbackSeverity::ERROR
+                );
 
-        $itemsWithSlug = [];
-        foreach ($neededItems as $key => $value) {
-            $itemsWithSlug[$value['key']] = array_merge($value, $slugs[$key] ?? []);
+                return $this->redirect('list');
+            }
         }
 
-        // Save items
-        foreach ($event->getCalendarize() as $key => $items) {
-            /** @var $indexObject \HDNET\Calendarize\Domain\Model\Index */
-            $indexObject = GeneralUtility::makeInstance(Index::class);
-            $indexObject->setForeignUid($event->getUid());
-            $indexObject->setUniqueRegisterKey('Event');
-            $indexObject->setForeignTable('tx_calendarize_domain_model_event');
-            $indexObject->setState($items->getState());
-            $indexObject->setAllDay($items->isAllDay());
-            $indexObject->setOpenEndTime($items->isOpenEndTime());
-            $indexObject->setStartDate($items->getStartDate());
-
-            // get unique slug
-            $slug = $this->slugService->makeSlugUnique($itemsWithSlug[$key]);
-            $indexObject->setSlug($slug);
-
-            if (!empty($items->getEndDate())) {
-                $indexObject->setEndDate($items->getEndDate());
-            } else {
-                $indexObject->setEndDate($items->getStartDate());
-            }
-
-            if (!empty($items->getStartTime())) {
-                $indexObject->setStartTime($items->getStartTime());
-            }
-
-            if (!empty($items->getEndTime())) {
-                $indexObject->setEndTime($items->getEndTime());
-            }
-
-            $this->indexRepository->add($indexObject);
-
-            // persist data in order to get correct slug for next item
-            $persistenceManager = GeneralUtility::makeInstance(PersistenceManager::class);
-            $persistenceManager->persistAll();
-        }
+        return null;
     }
 
-    /**
-     * Delete index objects of an event
-     *
-     * @param int $eventUid
-     * @return mixed
-     */
-    protected function deleteIndexOfEvent(int $eventUid)
+    protected function synchronizeIndex(Event $event): void
     {
-        // delete index objects
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getQueryBuilderForTable('tx_calendarize_domain_model_index');
-
-        return $queryBuilder
-            ->delete('tx_calendarize_domain_model_index')
-            ->where(
-                $queryBuilder->expr()->eq(
-                    'foreign_uid',
-                    $queryBuilder->createNamedParameter($eventUid, Connection::PARAM_INT)
-                )
-            )
-            ->executeStatement();
+        $this->persistenceManager->persistAll();
+        $this->indexerService->reindex(self::EVENT_REGISTER_KEY, self::EVENT_TABLE, $this->getEventUid($event));
     }
 
-    /**
-     * Convert an object to an array
-     *
-     * @param object $obj
-     * @return array
-     * @throws \ReflectionException
-     */
-    protected function objectToArray(object $obj): array
+    protected function deleteIndexOfEvent(int $eventUid): void
     {
-        $reflectionClass = new \ReflectionClass(get_class($obj));
-        $arr = array();
-        foreach ($reflectionClass->getProperties() as $prop) {
-            $prop->setAccessible(true);
+        $this->rawIndexRepository->deleteByIdentifier([
+            'unique_register_key' => self::EVENT_REGISTER_KEY,
+            'foreign_table' => self::EVENT_TABLE,
+            'foreign_uid' => $eventUid,
+        ]);
+    }
 
-            $val = '';
-            if ($prop->getName() === 'startDate' && !empty($prop->getValue($obj))) {
-                $val = $prop->getValue($obj)->format('Y-m-d');
-            } else {
-                $val = $prop->getValue($obj);
-            }
-
-            $arr[$this->getDecamelized($prop->getName())] = $val;
-            $prop->setAccessible(false);
+    protected function getEventUid(Event $event): int
+    {
+        $uid = $event->getUid();
+        if ($uid === null) {
+            throw new \LogicException('Calendarize indices require a persisted event.', 1787669112);
         }
 
-        return $arr;
+        return $uid;
     }
 
-
-    /**
-     * Get a camel case string decamelized, eg. "startDate" will become "start_date"
-     *
-     * @param string $str
-     * @return string
-     */
-    protected function getDecamelized(string $str): string
+    protected function translate(string $key): string
     {
-        return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $str));
+        return LocalizationUtility::translate($key, 'md_calendarize_frontend') ?? $key;
     }
 
     /**
      * Assign pagination to current view object
      *
-     * @param $items
-     * @param int $itemsPerPage
-     * @param int $maximumNumberOfLinks
+     * @param QueryResultInterface<int, DomainObjectInterface> $items
      */
-    protected function assignPagination($items, int $itemsPerPage = 10, int $maximumNumberOfLinks = 5): void
-    {
-        $currentPage = $this->request->hasArgument('currentPage') ? (int)$this->request->getArgument('currentPage') : 1;
-
+    protected function assignPagination(
+        QueryResultInterface $items,
+        int $itemsPerPage = 10,
+        int $maximumNumberOfLinks = 5
+    ): void {
         $paginator = new QueryResultPaginator(
             $items,
-            $currentPage,
+            $this->getCurrentPageNumber(),
             $itemsPerPage
         );
 
-        $pagination = new NumberedPagination(
-            $paginator,
-            $maximumNumberOfLinks
-        );
+        $pagination = $this->createPagination($paginator, $maximumNumberOfLinks);
 
         $this->view->assign('pagination', [
             'paginator' => $paginator,
             'pagination' => $pagination,
         ]);
+    }
+
+    protected function getCurrentPageNumber(): int
+    {
+        if (!$this->request->hasArgument('currentPage')) {
+            return 1;
+        }
+
+        $currentPage = $this->request->getArgument('currentPage');
+        if (is_int($currentPage)) {
+            return max(1, $currentPage);
+        }
+        if (is_string($currentPage) && ctype_digit($currentPage)) {
+            return max(1, (int)$currentPage);
+        }
+
+        return 1;
+    }
+
+    protected function createPagination(
+        PaginatorInterface $paginator,
+        int $maximumNumberOfLinks
+    ): SlidingWindowPagination {
+        return new SlidingWindowPagination($paginator, max(1, $maximumNumberOfLinks));
     }
 }

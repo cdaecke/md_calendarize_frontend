@@ -1,16 +1,17 @@
 <?php
 
+use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 
 defined('TYPO3') || die('Access denied.');
 
-$pluginSignature = \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerPlugin(
+$pluginSignature = ExtensionUtility::registerPlugin(
     'MdCalendarizeFrontend',
     'Frontend',
     'LLL:EXT:md_calendarize_frontend/Resources/Private/Language/locallang.xlf:mdcalendarizefrontend_frontend.name',
     'md_calendarize_frontend-plugin-frontend',
-    null,
+    'plugins',
     'LLL:EXT:md_calendarize_frontend/Resources/Private/Language/locallang.xlf:mdcalendarizefrontend_frontend.description',
 );
 

@@ -54,7 +54,7 @@ class FrontendUserGroup extends AbstractEntity
      *
      * @param string $title
      */
-    public function setTitle($title)
+    public function setTitle($title): void
     {
         $this->title = $title;
     }
@@ -74,7 +74,7 @@ class FrontendUserGroup extends AbstractEntity
      *
      * @param string $description
      */
-    public function setDescription($description)
+    public function setDescription($description): void
     {
         $this->description = $description;
     }
@@ -95,7 +95,7 @@ class FrontendUserGroup extends AbstractEntity
      *
      * @param ObjectStorage<FrontendUserGroup> $subgroup An object storage containing the subgroups to add
      */
-    public function setSubgroup(ObjectStorage $subgroup)
+    public function setSubgroup(ObjectStorage $subgroup): void
     {
         $this->subgroup = $subgroup;
     }
@@ -105,7 +105,7 @@ class FrontendUserGroup extends AbstractEntity
      *
      * @param FrontendUserGroup $subgroup
      */
-    public function addSubgroup(FrontendUserGroup $subgroup)
+    public function addSubgroup(FrontendUserGroup $subgroup): void
     {
         $this->subgroup->attach($subgroup);
     }
@@ -115,7 +115,7 @@ class FrontendUserGroup extends AbstractEntity
      *
      * @param FrontendUserGroup $subgroup
      */
-    public function removeSubgroup(FrontendUserGroup $subgroup)
+    public function removeSubgroup(FrontendUserGroup $subgroup): void
     {
         $this->subgroup->detach($subgroup);
     }

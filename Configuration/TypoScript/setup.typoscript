@@ -1,10 +1,10 @@
 plugin.tx_mdcalendarizefrontend_frontend {
   view {
-    templateRootPaths.0 = EXT:{extension.shortExtensionKey}/Resources/Private/Templates/
+    templateRootPaths.0 = EXT:md_calendarize_frontend/Resources/Private/Templates/
     templateRootPaths.1 = {$plugin.tx_mdcalendarizefrontend_frontend.view.templateRootPath}
     partialRootPaths.0 = EXT:md_calendarize_frontend/Resources/Private/Partials/
     partialRootPaths.1 = {$plugin.tx_mdcalendarizefrontend_frontend.view.partialRootPath}
-    layoutRootPaths.0 = EXT:tx_mdcalendarizefrontend/Resources/Private/Layouts/
+    layoutRootPaths.0 = EXT:md_calendarize_frontend/Resources/Private/Layouts/
     layoutRootPaths.1 = {$plugin.tx_mdcalendarizefrontend_frontend.view.layoutRootPath}
   }
 
