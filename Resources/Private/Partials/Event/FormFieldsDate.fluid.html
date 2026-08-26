@@ -100,63 +100,71 @@
 </div>
 
 <script>
-    addEventListener('load', (event) => {
-        jQuery(document).ready(function ($) {
-            var formElementCount = <f:format.raw>{elementCount + 1}</f:format.raw>,
-                source = $('#itemContainer_0'),
-                cloneMaster = source.clone();
+    addEventListener('load', () => {
+        let formElementCount = <f:format.raw>{elementCount + 1}</f:format.raw>;
+        const source = document.getElementById('itemContainer_0');
+        const cloneMaster = source.cloneNode(true);
 
-            $('#addItem').click(function() {
-                let clone = cloneMaster.clone();
-
-                // increment legend
-                clone.find('legend span').text(formElementCount + 1);
-
-                // increment for-attribute of label
-                clone.find('label').attr('for', function(i, val) {
-                    return val + formElementCount;
+        const initItem = () => {
+            document.querySelectorAll('.delItem').forEach((deleteLink) => {
+                deleteLink.addEventListener('click', () => {
+                    const item = deleteLink.getAttribute('data-item');
+                    if (item) {
+                        const identityField = document.querySelector(
+                            "input[name='tx_mdcalendarizefrontend_frontend[event][calendarize][" + item + "][__identity]']"
+                        );
+                        identityField?.remove();
+                    }
+                    deleteLink.closest('fieldset').remove();
                 });
-
-                // increment ID and name of input field
-                clone.find(':input').attr('id', function(i, val) {
-                    return val + formElementCount;
-                }).attr('name', function(i, val) {
-                    return val.replace('[0]','[' + formElementCount + ']');
-                });
-
-                // reset some values
-                clone.find(':input:not([type=hidden],[type=checkbox])').val('');
-                clone.find(':checkbox').prop('checked', false);
-                clone.find('.d-none').removeClass('d-none')
-
-                clone.insertBefore( $(this).parent() );
-                initItem();
-
-                formElementCount++;
             });
 
-            var initItem = function() {
-                $('.delItem').click(function() {
-                    let item = $(this).attr('data-item');
-                    if (item) {
-                        $("input[name='tx_mdcalendarizefrontend_frontend\\[event\\]\\[calendarize\\]\\[" + item + "\\]\\[__identity\\]']").remove();
-                    }
-                    $(this).closest('fieldset').remove();
+            document.querySelectorAll('.openEndTime').forEach((checkbox) => {
+                checkbox.addEventListener('change', () => {
+                    checkbox.closest('fieldset').querySelector('.endTime').classList.toggle('d-none', checkbox.checked);
                 });
+            });
 
-                $('.openEndTime').on('change', function() {
-                    let endTime = $(this).closest('fieldset').find('.endTime');
-                    endTime.toggleClass('d-none', $(this).is(':checked'));
+            document.querySelectorAll('.allDay').forEach((checkbox) => {
+                checkbox.addEventListener('change', () => {
+                    checkbox.closest('fieldset').querySelector('.times').classList.toggle('d-none', checkbox.checked);
                 });
+            });
+        };
 
-                $('.allDay').on('change', function() {
-                    let times = $(this).closest('fieldset').find('.times');
-                    times.toggleClass('d-none', $(this).is(':checked'));
-                });
-            }
+        document.getElementById('addItem').addEventListener('click', function () {
+            const clone = cloneMaster.cloneNode(true);
 
+            // increment legend
+            clone.querySelector('legend span').textContent = formElementCount + 1;
+
+            // increment for-attribute of label
+            clone.querySelectorAll('label').forEach((label) => {
+                label.setAttribute('for', label.getAttribute('for') + formElementCount);
+            });
+
+            // increment ID and name of input field
+            clone.querySelectorAll('input, select, textarea, button').forEach((field) => {
+                field.setAttribute('id', field.getAttribute('id') + formElementCount);
+                field.setAttribute('name', field.getAttribute('name').replace('[0]', '[' + formElementCount + ']'));
+            });
+
+            // reset some values
+            clone.querySelectorAll('input:not([type=hidden]):not([type=checkbox]), select, textarea').forEach((field) => {
+                field.value = '';
+            });
+            clone.querySelectorAll('input[type=checkbox]').forEach((checkbox) => {
+                checkbox.checked = false;
+            });
+            clone.querySelectorAll('.d-none').forEach((el) => el.classList.remove('d-none'));
+
+            this.parentElement.insertAdjacentElement('beforebegin', clone);
             initItem();
+
+            formElementCount++;
         });
+
+        initItem();
     });
 </script>
 
